@@ -1,0 +1,54 @@
+version: "3"
+services:
+  database:
+    image: mysql:5.6
+    restart: on-failure:5
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./core/src/test/test.sql:/docker-entrypoint-initdb.d/setup.sql
+      - mysql-bottleneck:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=compstak
+      - MYSQL_ROOT_PASSWORD=rootpass
+
+  mongodb:
+    image: mongo:3.6
+    restart: on-failure:5
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-bottleneck:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=specialk-prod
+
+  snake:
+    image: snake:latest
+    restart: on-failure:5
+    depends_on:
+      - "database"
+      - "mongodb"
+    environment:
+      - MYSQL_HOST=database
+      - MYSQL_USER=root
+      - MYSQL_PASS=rootpass
+      - MYSQL_PORT=3306
+      - MYSQL_DB=compstak
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+    command:
+      [
+        "./wait-for-it.sh",
+        "database:3306",
+        "--",
+        "./wait-for-it.sh",
+        "mongodb:27017",
+        "--",
+        "sh",
+        "-c",
+        "python -m pytest -s",
+      ]
+
+volumes:
+  mysql-bottleneck:
+  mongo-bottleneck:

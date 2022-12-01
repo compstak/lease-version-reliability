@@ -1,0 +1,84 @@
+version: 2.1
+
+orbs:
+  aws-ecr: circleci/aws-ecr@7.0.0
+
+_defaults: &defaults
+  machine:
+    image: ubuntu-2004:202201-02
+    docker_layer_caching: true
+  working_directory: ~/repo
+
+workflows:
+  version: 2
+  development:
+    jobs:
+      - pre-commit
+      - integration:
+          context: aws-deploy
+          requires:
+            - pre-commit
+      - aws-ecr/build-and-push-image:
+          context: aws-deploy
+          dockerfile: Dockerfile
+          repo: snake-repo
+          tag: build-$CIRCLE_BUILD_NUM
+          requires:
+            - integration
+
+jobs:
+  pre-commit:
+    docker:
+      - image: cimg/python:3.9.6
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Combine precommit config and python versions for caching
+          command: |
+            cat .pre-commit-config.yaml > pre-commit-deps.txt
+            python -VV >> pre-commit-deps.txt
+      - restore_cache:
+          keys:
+            - v1-precommit-deps-{{ checksum "pre-commit-deps.txt" }}
+      - run:
+          name: Install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install --upgrade pip
+            pip install pre-commit
+            pre-commit install-hooks
+      - save_cache:
+          paths:
+            - ~/.cache/pre-commit
+            - ./venv
+          key: v1-precommit-deps-{{ checksum "pre-commit-deps.txt" }}
+      - run:
+          name: Check code style using precommit
+          command: |
+            . venv/bin/activate
+            pre-commit run --show-diff-on-failure --all-files
+  integration:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          command: docker info
+      - run:
+          name: Build test docker image
+          command: |
+            docker build \
+            -t integration-test:latest -f Dockerfile.test .
+      - run:
+          name: List built docker images
+          command: docker images
+      - run:
+          name: Build Docker Compose environment
+          command: docker-compose up --no-start
+      - run:
+          name: Run Pytest
+          command: docker-compose run integration-test
+      - run:
+          name: Stop Docker Compose environment
+          command: docker-compose down -v
