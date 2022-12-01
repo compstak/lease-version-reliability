@@ -30,11 +30,11 @@ async def main() -> None:
     logger.info("<<< Getting Data >>>")
     await mysql.connect()
 
-    data_df = await get_Dataset(mysql)
+    original_df = await get_Dataset(mysql)
     submitter_name = await get_submitter_info(mysql)
 
-    holdout_df = data_df.tail(1000)
-    data_df = data_df.head(len(data_df) - 1000)
+    holdout_df = original_df.tail(1000)
+    data_df = original_df.head(len(original_df) - 1000)
 
     attributes = [
         "tenant_name",
@@ -95,7 +95,7 @@ async def main() -> None:
     x_cols, y_cols = get_split_columns(df.columns)
     model_dict = train_multioutput_classifiers(df, x_cols, y_cols)
 
-    logger.info("Exporting Results")
+    logger.info("Exporting Submitter Results")
     anal_df, submitter_info = await get_submitter_reliability(
         df,
         x_cols,
@@ -105,8 +105,16 @@ async def main() -> None:
     )
     anal_df.to_csv("data/processed/submitter_reliability.csv", index=False)
 
+    logger.info("Exporting Version Results")
+
+    # select which df of versions to evaluate reliability
+    if settings.ENV == "local":
+        versions_to_evaluate = holdout_df.copy()
+    else:
+        versions_to_evaluate = original_df.copy()
+
     version_reliability_df = get_version_reliability(
-        holdout_df,
+        versions_to_evaluate,
         attributes,
         submitter_info,
         y_cols,

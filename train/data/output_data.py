@@ -22,7 +22,7 @@ async def get_submitter_reliability(
         how="inner",
     )
     submitter_records[
-        "n_submissions"
+        "n_support"
     ] = submitter_info.submitter_person_id.value_counts()[
         submitter_records["submitter_person_id"]
     ].to_list()
@@ -30,7 +30,7 @@ async def get_submitter_reliability(
         subset="submitter_person_id",
     )
     anal_df = submitter_records[
-        ["submitter_name", "submitter_person_id", "n_submissions"]
+        ["submitter_name", "submitter_person_id", "n_support"]
     ]
     reliability_cols = []
     for col in y_cols:
@@ -38,8 +38,6 @@ async def get_submitter_reliability(
         prob = clf.predict_proba(submitter_records[X_cols])[:, 1]
         reliability_col = col.replace("label", "reliability")
         anal_df[reliability_col] = prob
-        print(reliability_col)
-        print(type(reliability_col))
         reliability_cols.append(reliability_col)
 
     cols_to_average = [
@@ -53,9 +51,9 @@ async def get_submitter_reliability(
         "expiration_date_reliability",
     ]
 
-    anal_df["average_reliability"] = anal_df[cols_to_average].mean(axis=1)
+    anal_df["general_reliability"] = anal_df[cols_to_average].mean(axis=1)
     anal_df = anal_df.sort_values(
-        by=["average_reliability", "n_submissions"],
+        by=["general_reliability", "n_support"],
         ascending=False,
     ).reset_index(drop=True)
     return anal_df, submitter_info

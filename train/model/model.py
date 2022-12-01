@@ -41,7 +41,12 @@ def train_multioutput_classifiers(df, X_cols, y_cols):
             test_size=0.2,
             random_state=10,
         )
-        clf = RandomForestClassifier(random_state=1, n_jobs=-1)
+        class_weight = None
+        clf = RandomForestClassifier(
+            class_weight=class_weight,
+            random_state=1,
+            n_jobs=-1,
+        )
         clf.fit(x_train, y_train)
         test_preds = clf.predict(x_test)
         acc = accuracy_score(y_test, test_preds)
