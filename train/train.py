@@ -108,15 +108,15 @@ async def main() -> None:
     logger.info("Exporting Version Results")
 
     # select which df of versions to evaluate reliability
-    if settings.ENV == "local":
+    if settings.ENV != "local":
         versions_to_evaluate = holdout_df.copy()
     else:
-        versions_to_evaluate = original_df.copy()
+        versions_to_evaluate = df.copy()
 
     version_reliability_df = get_version_reliability(
         versions_to_evaluate,
         attributes,
-        submitter_info,
+        x_cols,
         y_cols,
         model_dict,
     )
