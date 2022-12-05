@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     MYSQL_PASS: str
     MYSQL_PORT: str
     MYSQL_DB: str
+    SNOWFLAKE_USERNAME: str
+    SNOWFLAKE_PASSWORD: str
+    SNOWFLAKE_ACCOUNT: str
+
     MODELS_S3_BUCKET: str = "compstak-machine-learning"
 
     class Config:

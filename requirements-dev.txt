@@ -14,7 +14,7 @@ pytest==6.2.5
 pytest-asyncio==0.18.3
 requests==2.26.0
 scikit-learn==1.0.1
-snowflake-connector-python[pandas]==2.8.0
+snowflake-connector-python[pandas]==2.7.0
 SQLAlchemy==1.4.41
 starlette-exporter==0.11.0
 structlog==21.2.0
