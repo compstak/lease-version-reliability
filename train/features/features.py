@@ -101,3 +101,44 @@ def get_rate_features(data, attributes):
         )
 
     return df
+
+
+def feature_engineering(
+    data,
+    col_names_label,
+    col_names_filled,
+    col_names_correct,
+    attributes,
+):
+
+    df_submitter_features = get_features_by_entity(
+        data,
+        "submitter_person_id",
+        col_names_label,
+        col_names_filled,
+    )
+    df_logo_features = get_features_by_entity(
+        data,
+        "logo",
+        col_names_label,
+        col_names_filled,
+    )
+    df = combine_features(
+        data,
+        df_submitter_features,
+        "submitter_person_id",
+        "inner",
+        col_names_correct,
+        col_names_filled,
+    )
+    df = combine_features(
+        df,
+        df_logo_features,
+        "logo",
+        "left",
+        col_names_correct,
+        col_names_filled,
+    )
+    df = get_rate_features(df, attributes)
+
+    return df
