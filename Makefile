@@ -1,5 +1,5 @@
 PROJECT=lease-version-reliability
-VERSION=3.9.6
+VERSION=3.9.10
 ENV=local
 
 SHELL:=/bin/bash
