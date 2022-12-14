@@ -58,4 +58,5 @@ def train_multioutput_classifiers(df, X_cols, y_cols):
         print("----------------------------------")
 
         model_dict[col] = clf
+
     return model_dict

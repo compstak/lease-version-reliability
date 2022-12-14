@@ -1,0 +1,20 @@
+create temporary table IF NOT EXISTS {}.temp
+(
+submitter_person_id integer
+tenant_name_reliability float
+space_type_id_reliability float
+transaction_size_reliability float
+starting_rent_reliability float
+execution_date_reliability float
+commencement_date_reliability float
+lease_term_reliability float
+expiration_date_reliability float
+work_value_reliability float
+free_months_reliability float
+transaction_type_id_reliability float
+rent_bumps_percent_bumps_reliability float
+rent_bumps_dollar_bumps_reliability float
+lease_type_id_reliability float
+general_reliability float
+date_created timestamp
+);

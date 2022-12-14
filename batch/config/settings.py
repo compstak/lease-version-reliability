@@ -1,10 +1,34 @@
 from functools import lru_cache
+from typing import Optional
 
 from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
     ENV: str
+    PROJECT_NAME: str = "lease-version-reliability"
+
+    ATTRIBUTES = [
+        "tenant_name",
+        "space_type_id",
+        "transaction_size",
+        "starting_rent",
+        "execution_date",
+        "commencement_date",
+        "lease_term",
+        "expiration_date",
+        "work_value",
+        "free_months",
+        "transaction_type_id",
+        "rent_bumps_percent_bumps",
+        "rent_bumps_dollar_bumps",
+        "lease_type_id",
+    ]
+
+    QUERY_DIR: str = "batch/data/query"
+    MODEL_DIR: str = "models"
+    DATA_DIR: str = "data"
+    MODEL_NAME: str = "lease_reliability_clf.pickle"
 
     MYSQL_HOST: str
     MYSQL_USER: str
@@ -12,8 +36,16 @@ class Settings(BaseSettings):
     MYSQL_PORT: str
     MYSQL_DB: str
 
-    MONGO_HOST: str
-    MONGO_DB: str
+    SNOWFLAKE_USER: str
+    SNOWFLAKE_PASS: str
+    SNOWFLAKE_ACCOUNT: str
+    SNOWFLAKE_REGION: str
+    SNOWFLAKE_WH: str
+    SNOWFLAKE_DB: str
+
+    AWS_ROLE_ARN: Optional[str] = None
+    AWS_WEB_IDENTITY_TOKEN_FILE: Optional[str] = None
+    MODELS_S3_BUCKET: str = "compstak-machine-learning"
 
     class Config:
         case_sensitive = True

@@ -8,12 +8,12 @@ def get_snowflake_connection():
     Get Snowflake cursor
     """
     connection = snowflake.connector.connect(
-        user=settings.SNOWFLAKE_USERNAME,
-        password=settings.SNOWFLAKE_PASSWORD,
+        user=settings.SNOWFLAKE_USER,
+        password=settings.SNOWFLAKE_PASS,
         account=settings.SNOWFLAKE_ACCOUNT,
-        region="us-east-1",
-        warehouse="PC_PERISCOPE_WH",
-        database="INTERNAL_ANALYTICS",
+        region=settings.SNOWFLAKE_REGION,
+        warehouse=settings.SNOWFLAKE_WH,
+        database=settings.SNOWFLAKE_DB,
         autocommit=False,
     )
     return connection

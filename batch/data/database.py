@@ -1,7 +1,28 @@
+import typing
+
 from databases import Database
-from motor.motor_asyncio import AsyncIOMotorClient
+import snowflake.connector
 
 from batch.config.settings import settings
+
+snowflake.connector.paramstyle = "qmark"
+
+
+def get_snowflake_connection() -> typing.Any:
+    """
+    Get Snowflake cursor
+    """
+    connection = snowflake.connector.connect(
+        user=settings.SNOWFLAKE_USER,
+        password=settings.SNOWFLAKE_PASS,
+        account=settings.SNOWFLAKE_ACCOUNT,
+        region=settings.SNOWFLAKE_REGION,
+        warehouse=settings.SNOWFLAKE_WH,
+        database=settings.SNOWFLAKE_DB,
+        autocommit=False,
+    )
+
+    return connection
 
 
 class CompstakServicesMySQL(Database):
@@ -17,10 +38,4 @@ class CompstakServicesMySQL(Database):
         )
 
 
-class CompstakServicesMongoDB(AsyncIOMotorClient):
-    def __init__(self) -> None:
-        super().__init__(settings.MONGO_HOST)
-
-
 cs_mysql_instance = CompstakServicesMySQL()
-cs_mongo_instance = CompstakServicesMongoDB()

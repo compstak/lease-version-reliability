@@ -1,19 +1,12 @@
 import asyncio
+import pickle
 
 import structlog
 
+from train.common.file_io import upload_dataset, upload_models
 from train.common.logging import initialize_logging
 from train.config.settings import settings
-from train.data.dataset import (
-    get_all_data,
-    get_labels,
-    get_reliable_data,
-    get_submitter_info,
-)
-from train.data.output_data import (
-    get_submitter_reliability,
-    get_version_reliability,
-)
+from train.data.database_io import get_all_data, get_labels, get_reliable_data
 from train.features.features import feature_engineering
 from train.model.model import (
     get_column_names,
@@ -33,28 +26,13 @@ async def main() -> None:
     # all version data needed to export a reliability score
     all_data = get_all_data()
 
-    # submitter name for display purposes when exporting validation data
-    submitter_name = get_submitter_info()
+    # # submitter name for display purposes when exporting validation data
+    # submitter_name = get_submitter_info()
 
     print(len(reliable_data))
     print(len(all_data))
 
-    attributes = [
-        "tenant_name",
-        "space_type_id",
-        "transaction_size",
-        "starting_rent",
-        "execution_date",
-        "commencement_date",
-        "lease_term",
-        "expiration_date",
-        "work_value",
-        "free_months",
-        "transaction_type_id",
-        "rent_bumps_percent_bumps",
-        "rent_bumps_dollar_bumps",
-        "lease_type_id",
-    ]
+    attributes = settings.ATTRIBUTES
 
     col_names_correct, col_names_filled, col_names_label = get_column_names(
         attributes,
@@ -86,28 +64,25 @@ async def main() -> None:
     x_cols, y_cols = get_split_columns(df.columns)
     model_dict = train_multioutput_classifiers(df, x_cols, y_cols)
 
-    logger.info("Exporting Submitter Results")
-    submitter_df, submitter_info = await get_submitter_reliability(
-        df,
-        x_cols,
-        y_cols,
-        model_dict,
-        submitter_name,
-    )
-    submitter_df.to_csv("data/processed/submitter_reliability.csv", index=False)
+    # upload processed dataset to S3
+    with open(
+        f"{settings.DATA_DIR}" + "/processed" + "/reliable_data",
+        "wb",
+    ) as handle:
+        pickle.dump(df, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    logger.info("Exporting Version Results")
-    version_reliability_df = get_version_reliability(
-        df_all,
-        attributes,
-        x_cols,
-        y_cols,
-        model_dict,
-    )
-    version_reliability_df.to_csv(
-        "data/processed/version_reliability.csv",
-        index=False,
-    )
+    with open(
+        f"{settings.DATA_DIR}" + "/processed" + "/all_data",
+        "wb",
+    ) as handle:
+        pickle.dump(df_all, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    upload_dataset("processed")
+
+    # upload classifier to S3
+    with open(f"{settings.MODEL_DIR}/{settings.MODEL_NAME}", "wb") as handle:
+        pickle.dump(model_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    upload_models()
 
 
 if __name__ == "__main__":
