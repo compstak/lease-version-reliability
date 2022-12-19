@@ -1,5 +1,6 @@
 import asyncio
 
+import numpy as np
 import pandas as pd
 import structlog
 
@@ -17,27 +18,27 @@ from batch.data.output_data import (
     get_version_reliability,
 )
 
-# import typing
-
-
 logger = structlog.get_logger()
 initialize_logging(settings.ENV)
 
 
 async def main() -> None:
+    logger.info("Downloading processed dataset from S3")
     download_dataset("processed")
-    df = pd.read_pickle(f"{settings.DATA_DIR}/reliable_data")
-    df_all = pd.read_pickle(f"{settings.DATA_DIR}/all_data")
+    df = pd.read_pickle(f"{settings.DATA_DIR}/processed/reliable_data")
+    df_all = pd.read_pickle(f"{settings.DATA_DIR}/processed/all_data")
 
+    logger.info("Downloading lease-reliability classifiers from S3")
     download_models()
     model_dict = pd.read_pickle(f"{settings.MODEL_DIR}/{settings.MODEL_NAME}")
 
+    # submitter name for display purposes when exporting validation data
     submitter_name = get_submitter_info()
     x_cols, y_cols = get_split_columns(df.columns)
 
     attributes = settings.ATTRIBUTES
 
-    logger.info("Exporting Submitter Results")
+    logger.info("Calculating Submitter Results")
     submitter_df, _ = await get_submitter_reliability(
         df,
         x_cols,
@@ -46,7 +47,7 @@ async def main() -> None:
         submitter_name,
     )
 
-    logger.info("Exporting Version Results")
+    logger.info("Calculating Version Results")
     version_reliability_df = get_version_reliability(
         df_all,
         attributes,
@@ -56,19 +57,24 @@ async def main() -> None:
     )
 
     # export submitter result to Snowflake
-    logger.info("exporting submitter results into Snowflake")
+    logger.info("Exporting <SUBMITTER RELIABILITY> into Snowflake")
     write_submitter_df_snowflake(
         submitter_df,
-        "internal_analytics.experiments",
-        "submitter_reliability",
+        "ML_PIPELINE_DEV_DB.LEASE_VERSION_RELIABILITY",
+        "SUBMITTER",
     )
+
     # export version result to Snowflake
-    logger.info("exporting submitter results into Snowflake")
-    write_version_realiability_df_snowflake(
-        version_reliability_df,
-        "internal_analytics.experiments",
-        "version_reliability",
-    )
+    logger.info("Exporting <VERSION RELIABILITY> into Snowflake")
+    logger.info(f"Total len of {len(version_reliability_df)}")
+
+    for i, chunk in enumerate(np.array_split(version_reliability_df, 10)):
+        logger.info(f"processing batch: {i + 1}/10")
+        write_version_realiability_df_snowflake(
+            chunk,
+            "ML_PIPELINE_DEV_DB.LEASE_VERSION_RELIABILITY",
+            "VERSION",
+        )
 
 
 if __name__ == "__main__":

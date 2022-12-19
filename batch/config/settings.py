@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     SNOWFLAKE_WH: str
     SNOWFLAKE_DB: str
 
+    SNOWFLAKE_ML_USER: str
+    SNOWFLAKE_ML_PASS: str
+    SNOWFLAKE_ML_ROLE: str
+    SNOWFLAKE_ML_ACCOUNT: str
+    SNOWFLAKE_ML_DB: str
+
     AWS_ROLE_ARN: Optional[str] = None
     AWS_WEB_IDENTITY_TOKEN_FILE: Optional[str] = None
     MODELS_S3_BUCKET: str = "compstak-machine-learning"

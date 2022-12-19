@@ -55,6 +55,7 @@ async def get_submitter_reliability(
         by=["general_reliability", "n_support"],
         ascending=False,
     ).reset_index(drop=True)
+
     return anal_df, submitter_info
 
 
@@ -72,4 +73,5 @@ def get_version_reliability(data, attributes, x_cols, y_cols, model_dict):
         val_df[f"{attributes[i]}_prob"] = probs
 
     val_df = val_df.sort_values(by="comp_data_id_master")
+
     return val_df

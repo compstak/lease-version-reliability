@@ -15,7 +15,7 @@ insert into {}.temp
     RENT_BUMPS_PERCENT_BUMPS,
     RENT_BUMPS_DOLLAR_BUMPS,
     LEASE_TYPE_ID,
-    GENERAL,
+    GENERAL_RELIABILITY,
     DATE_CREATED
 )
 values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

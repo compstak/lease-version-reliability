@@ -3,58 +3,58 @@ using {schema}.temp s
 on t.submitter_person_id = s.submitter_person_id
 when matched then
 update set
-t.tenant_name_reliability = s.tenant_name_reliability,
-t.space_type_id_reliability = s.space_type_id_reliability
-t.transaction_size_reliability = s.transaction_size_reliability
-t.starting_rent_reliability = s.starting_rent_reliability
-t.execution_date_reliability = s.execution_date_reliability
-t.commencement_date_reliability = s.commencement_date_reliability
-t.lease_term_reliability = s.lease_term_reliability
-t.expiration_date_reliability = s.expiration_date_reliability
-t.work_value_reliability = s.work_value_reliability
-t.free_months_reliability = s.free_months_reliability
-t.transaction_type_id_reliability = s.transaction_type_id_reliability
-t.rent_bumps_percent_bumps_reliability = s.rent_bumps_percent_bumps_reliability
-t.rent_bumps_dollar_bumps_reliability = s.rent_bumps_dollar_bumps_reliability
-t.lease_type_id_reliability = s.lease_type_id_reliability
-t.general_reliability = s.general_reliability
+t.tenant_name = s.tenant_name,
+t.space_type_id = s.space_type_id,
+t.transaction_size = s.transaction_size,
+t.starting_rent = s.starting_rent,
+t.execution_date = s.execution_date,
+t.commencement_date = s.commencement_date,
+t.lease_term = s.lease_term,
+t.expiration_date = s.expiration_date,
+t.work_value = s.work_value,
+t.free_months = s.free_months,
+t.transaction_type_id = s.transaction_type_id,
+t.rent_bumps_percent_bumps = s.rent_bumps_percent_bumps,
+t.rent_bumps_dollar_bumps = s.rent_bumps_dollar_bumps,
+t.lease_type_id = s.lease_type_id,
+t.general_reliability = s.general_reliability,
 t.date_created = current_timestamp
 when not matched then
 insert (
     submitter_person_id,
-    tenant_name_reliability,
-    space_type_id_reliability,
-    transaction_size_reliability,
-    starting_rent_reliability,
-    execution_date_reliability,
-    commencement_date_reliability,
-    lease_term_reliability,
-    expiration_date_reliability,
-    work_value_reliability,
-    free_months_reliability,
-    transaction_type_id_reliability,
-    rent_bumps_percent_bumps_reliability,
-    rent_bumps_dollar_bumps_reliability,
-    lease_type_id_reliability,
+    tenant_name,
+    space_type_id,
+    transaction_size,
+    starting_rent,
+    execution_date,
+    commencement_date,
+    lease_term,
+    expiration_date,
+    work_value,
+    free_months,
+    transaction_type_id,
+    rent_bumps_percent_bumps,
+    rent_bumps_dollar_bumps,
+    lease_type_id,
     general_reliability,
     date_created
     )
 values (
     s.submitter_person_id,
-    s.tenant_name_reliability,
-    s.space_type_id_reliability,
-    s.transaction_size_reliability,
-    s.starting_rent_reliability,
-    s.execution_date_reliability,
-    s.commencement_date_reliability,
-    s.lease_term_reliability,
-    s.expiration_date_reliability,
-    s.work_value_reliability,
-    s.free_months_reliability,
-    s.transaction_type_id_reliability,
-    s.rent_bumps_percent_bumps_reliability,
-    s.rent_bumps_dollar_bumps_reliability,
-    s.lease_type_id_reliability,
+    s.tenant_name,
+    s.space_type_id,
+    s.transaction_size,
+    s.starting_rent,
+    s.execution_date,
+    s.commencement_date,
+    s.lease_term,
+    s.expiration_date,
+    s.work_value,
+    s.free_months,
+    s.transaction_type_id,
+    s.rent_bumps_percent_bumps,
+    s.rent_bumps_dollar_bumps,
+    s.lease_type_id,
     s.general_reliability,
     current_timestamp
     )

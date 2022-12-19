@@ -26,9 +26,6 @@ async def main() -> None:
     # all version data needed to export a reliability score
     all_data = get_all_data()
 
-    # # submitter name for display purposes when exporting validation data
-    # submitter_name = get_submitter_info()
-
     print(len(reliable_data))
     print(len(all_data))
 
@@ -76,12 +73,13 @@ async def main() -> None:
         "wb",
     ) as handle:
         pickle.dump(df_all, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
+    logger.info("Uploading processed dataset to S3")
     upload_dataset("processed")
 
     # upload classifier to S3
     with open(f"{settings.MODEL_DIR}/{settings.MODEL_NAME}", "wb") as handle:
         pickle.dump(model_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    logger.info("Uploading lease-reliability classifiers to S3")
     upload_models()
 
 

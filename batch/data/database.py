@@ -25,6 +25,22 @@ def get_snowflake_connection() -> typing.Any:
     return connection
 
 
+def get_snowflake_ml_pipeline_connection() -> typing.Any:
+    """
+    Get Snowflake cursor
+    """
+    connection = snowflake.connector.connect(
+        user=settings.SNOWFLAKE_ML_USER,
+        password=settings.SNOWFLAKE_ML_PASS,
+        role=settings.SNOWFLAKE_ML_ROLE,
+        account=settings.SNOWFLAKE_ML_ACCOUNT,
+        database=settings.SNOWFLAKE_ML_DB,
+        autocommit=False,
+    )
+
+    return connection
+
+
 class CompstakServicesMySQL(Database):
     def __init__(self) -> None:
         super().__init__(
