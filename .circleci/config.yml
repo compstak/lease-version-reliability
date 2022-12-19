@@ -21,10 +21,11 @@ workflows:
       - aws-ecr/build-and-push-image:
           context: aws-deploy
           dockerfile: Dockerfile
-          repo: snake-repo
+          repo: compstak/lease-version-reliability
           tag: build-$CIRCLE_BUILD_NUM
           requires:
             - integration
+            - pre-commit
 
 jobs:
   pre-commit:

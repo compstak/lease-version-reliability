@@ -1,6 +1,5 @@
 import typing
 
-from databases import Database
 import snowflake.connector
 
 from batch.config.settings import settings
@@ -39,19 +38,3 @@ def get_snowflake_ml_pipeline_connection() -> typing.Any:
     )
 
     return connection
-
-
-class CompstakServicesMySQL(Database):
-    def __init__(self) -> None:
-        super().__init__(
-            "mysql://{}:{}@{}:{}/{}".format(
-                settings.MYSQL_USER,
-                settings.MYSQL_PASS,
-                settings.MYSQL_HOST,
-                settings.MYSQL_PORT,
-                settings.MYSQL_DB,
-            ),
-        )
-
-
-cs_mysql_instance = CompstakServicesMySQL()
