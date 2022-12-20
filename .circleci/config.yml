@@ -14,17 +14,19 @@ workflows:
   development:
     jobs:
       - pre-commit
-      - integration:
-          context: aws-deploy
-          requires:
-            - pre-commit
       - aws-ecr/build-and-push-image:
           context: aws-deploy
           dockerfile: Dockerfile
           repo: compstak/lease-version-reliability
           tag: build-$CIRCLE_BUILD_NUM
           requires:
-            - integration
+            - pre-commit
+      - aws-ecr/build-and-push-image:
+          context: aws-deploy
+          dockerfile: Dockerfile.train
+          repo: compstak/lease-version-reliability/train
+          tag: build-$CIRCLE_BUILD_NUM
+          requires:
             - pre-commit
 
 jobs:
@@ -60,26 +62,3 @@ jobs:
           command: |
             . venv/bin/activate
             pre-commit run --show-diff-on-failure --all-files
-  integration:
-    <<: *defaults
-    steps:
-      - checkout
-      - run:
-          command: docker info
-      - run:
-          name: Build test docker image
-          command: |
-            docker build \
-            -t integration-test:latest -f Dockerfile.test .
-      - run:
-          name: List built docker images
-          command: docker images
-      - run:
-          name: Build Docker Compose environment
-          command: docker-compose up --no-start
-      - run:
-          name: Run Pytest
-          command: docker-compose run integration-test
-      - run:
-          name: Stop Docker Compose environment
-          command: docker-compose down -v
