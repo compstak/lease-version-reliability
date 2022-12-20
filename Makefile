@@ -1,4 +1,4 @@
-PROJECT=snake-repo
+PROJECT=lease-version-reliability
 VERSION=3.9.10
 ENV=local
 
@@ -8,7 +8,7 @@ VENV_DIR=$(shell pyenv root)/versions/${VENV}
 PYTHON=${VENV_DIR}/bin/python
 JUPYTER_ENV_NAME=${VENV}
 JUPYTER_PORT=8888
-BUCKET=compstak-machine-bucket
+BUCKET=compstak-machine-learning
 
 DEFAULT_GOAL: help
 .PHONY: help run clean build venv ipykernel update jupyter pytest check-all
@@ -82,7 +82,7 @@ jupyter: venv ##@tool >> start a jupyter notebook
 	jupyter notebook --port $(JUPYTER_PORT)
 
 pytest: ##@tool >> run pytest
-	$(PYTHON) -m pytest -s
+	$(PYTHON) -m pytest tests/test.py -s
 
 check-all: ##@tool >> perform pre-commit checks
 	pre-commit run --all-files
