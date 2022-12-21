@@ -2,6 +2,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 
+from train.data.database_io import get_reliable_data_by_attribute
+
 
 def get_column_names(attributes):
     correct = []
@@ -29,10 +31,16 @@ def get_split_columns(columns):
 def train_multioutput_classifiers(df, X_cols, y_cols):
 
     model_dict = {}
+    df_reliable_attributes = get_reliable_data_by_attribute()
     for col in y_cols:
 
         # Remove null attributes
-        temp = df[df[col] != -1]
+        attribute = col.replace("_label", "")
+        ids_to_keep = df_reliable_attributes[
+            df_reliable_attributes[f"{attribute}_count"] >= 3
+        ]["comp_version_id"].tolist()
+
+        temp = df[(df["id"].isin(ids_to_keep)) & (df[col] != -1)]
         X = temp[X_cols]
         y = temp[col]
         x_train, x_test, y_train, y_test = train_test_split(
@@ -52,6 +60,8 @@ def train_multioutput_classifiers(df, X_cols, y_cols):
         acc = accuracy_score(y_test, test_preds)
         f1 = f1_score(y_test, test_preds)
 
+        print(attribute)
+        print(f"Training Data Size: {len(x_train)}")
         print(f"{col} - Accuracy : {acc}")
         print(f"{col} - F1 : {f1}")
         print(y.value_counts())

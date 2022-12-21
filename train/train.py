@@ -26,17 +26,15 @@ async def main() -> None:
     # all version data needed to export a reliability score
     all_data = get_all_data()
 
-    print(len(reliable_data))
-    print(len(all_data))
-
     attributes = settings.ATTRIBUTES
 
     col_names_correct, col_names_filled, col_names_label = get_column_names(
         attributes,
     )
 
-    logger.info("Creating Data Labels")
+    logger.info("Data Labels - Reliable Data")
     data = get_labels(reliable_data, attributes)
+    logger.info("Data Labels - All Data")
     all_data = get_labels(all_data, attributes)
 
     logger.info("Feature Engineering - Reliable Data")

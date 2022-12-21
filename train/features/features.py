@@ -17,6 +17,7 @@ def get_features_by_entity(data, name, label, fill):
             .sum()
             .rename(f"{col.replace('label', 'correct')}_{name}")
         )
+
         df_metrics = df_metrics.merge(
             right=s_correct,
             how="inner",

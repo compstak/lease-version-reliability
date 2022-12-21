@@ -42,6 +42,16 @@ def get_all_data():
     return df
 
 
+def get_reliable_data_by_attribute():
+    query = read_file("reliable_data_by_attribute.sql")
+    df = pd.read_sql(
+        query,
+        get_snowflake_connection(),
+    )
+    df.columns = [x.lower() for x in df.columns]
+    return df
+
+
 def label_strict_equality(subject, target):
     if pd.isnull(subject) or pd.isnull(target):
         return -1
