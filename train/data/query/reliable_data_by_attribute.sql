@@ -18,7 +18,7 @@ count(cdv.free_months) as free_months_count,
 count(cdv.transaction_type_id) as transaction_type_id_count,
 count(cdv.rent_bumps_percent_bumps) as rent_bumps_percent_bumps_count,
 count(cdv.rent_bumps_dollar_bumps) as rent_bumps_dollar_bumps_count,
-count(cdv.lease_type_id) as lease_type_id_version
+count(cdv.lease_type_id) as lease_type_id_count
 
 from internal_analytics.mysql_compstak.comp_master_versions cmv
 JOIN internal_analytics.mysql_compstak.comp_version cv
