@@ -5,36 +5,21 @@ import pandas as pd
 warnings.filterwarnings("ignore")
 
 
-async def get_submitter_reliability(
-    df,
-    X_cols,
-    y_cols,
-    model_dict,
-    submitter_name,
-):
+def get_submitter_reliability(df, X_cols, y_cols, model_dict):
     submitter_info = df[["submitter_person_id"] + X_cols].drop_duplicates()
-    submitter_info = submitter_info.drop_duplicates()
-    submitter_records = submitter_info.merge(
-        right=submitter_name,
-        left_on="submitter_person_id",
-        right_on="id",
-        how="inner",
-    )
-    submitter_records[
+    submitter_info[
         "n_support"
     ] = submitter_info.submitter_person_id.value_counts()[
-        submitter_records["submitter_person_id"]
+        submitter_info["submitter_person_id"]
     ].to_list()
-    submitter_records = submitter_records.drop_duplicates(
+    submitter_info = submitter_info.drop_duplicates(
         subset="submitter_person_id",
     )
-    anal_df = submitter_records[
-        ["submitter_name", "submitter_person_id", "n_support"]
-    ]
+    anal_df = submitter_info[["submitter_person_id", "n_support"]]
     reliability_cols = []
     for col in y_cols:
         clf = model_dict[col]
-        prob = clf.predict_proba(submitter_records[X_cols])[:, 1]
+        prob = clf.predict_proba(submitter_info[X_cols])[:, 1]
         reliability_col = col.replace("label", "reliability")
         anal_df[reliability_col] = prob
         reliability_cols.append(reliability_col)

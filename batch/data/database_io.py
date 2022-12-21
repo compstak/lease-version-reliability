@@ -1,13 +1,9 @@
 import datetime
 
-import pandas as pd
 import structlog
 
 from batch.config.settings import settings
-from batch.data.database import (
-    get_snowflake_connection,
-    get_snowflake_ml_pipeline_connection,
-)
+from batch.data.database import get_snowflake_ml_pipeline_connection
 
 logger = structlog.get_logger()
 
@@ -131,17 +127,6 @@ def write_version_realiability_df_snowflake(df, schema, table):
             cur.close()
             conn.commit()
             logger.info("done")
-
-
-def get_submitter_info() -> pd.DataFrame:
-    query = read_file("submitter_info.sql")
-    df = pd.read_sql(
-        query,
-        get_snowflake_connection(),
-    )
-    df.columns = [x.lower() for x in df.columns]
-
-    return df
 
 
 def get_split_columns(columns):

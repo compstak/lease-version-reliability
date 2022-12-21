@@ -25,6 +25,8 @@ class Settings(BaseSettings):
         "lease_type_id",
     ]
 
+    BATCH_SIZE: int = 10
+
     QUERY_DIR: str = "batch/data/query"
     MODEL_DIR: str = "models"
     DATA_DIR: str = "data"
