@@ -49,7 +49,7 @@ def train_multioutput_classifiers(df, X_cols, y_cols):
             test_size=0.2,
             random_state=10,
         )
-        class_weight = None
+        class_weight = "balanced"
         clf = RandomForestClassifier(
             class_weight=class_weight,
             random_state=1,
