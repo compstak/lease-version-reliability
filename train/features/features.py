@@ -1,8 +1,10 @@
+import typing
+
 import numpy as np
 import pandas as pd
 
 
-def get_features_by_entity(data, name, label, fill):
+def get_features_by_entity(data, name, label, fill) -> typing.Any:
     df_metrics = pd.DataFrame()
     ids = list(data[name].unique())
     if np.NaN in ids:
@@ -58,7 +60,14 @@ def get_features_by_entity(data, name, label, fill):
     return df_metrics
 
 
-def combine_features(data, agg_data, name, how, correct, filled):
+def combine_features(
+    data,
+    agg_data,
+    name,
+    how,
+    correct,
+    filled,
+) -> pd.DataFrame:
     df = data.merge(agg_data, how=how)
 
     for c in correct:
@@ -74,7 +83,7 @@ def combine_features(data, agg_data, name, how, correct, filled):
     return df.fillna(0)
 
 
-def get_rate_features(data, attributes):
+def get_rate_features(data, attributes) -> pd.DataFrame:
     df = data
     for att in attributes:
         df[f"{att}_submitter_correct_rate"] = np.where(
@@ -110,7 +119,7 @@ def feature_engineering(
     col_names_filled,
     col_names_correct,
     attributes,
-):
+) -> pd.DataFrame:
 
     df_submitter_features = get_features_by_entity(
         data,

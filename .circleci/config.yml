@@ -21,13 +21,6 @@ workflows:
           tag: build-$CIRCLE_BUILD_NUM
           requires:
             - pre-commit
-      - aws-ecr/build-and-push-image:
-          context: aws-deploy
-          dockerfile: Dockerfile.train
-          repo: compstak/lease-version-reliability/train
-          tag: build-$CIRCLE_BUILD_NUM
-          requires:
-            - pre-commit
 
 jobs:
   pre-commit:
