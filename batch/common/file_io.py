@@ -55,32 +55,6 @@ def get_s3_resource() -> typing.Any:
     return s3_resource
 
 
-def download_dataset(directory: str) -> None:
-    """
-    Get dataset from S3 bucket
-    """
-    s3 = get_s3_resource()
-    object_name = (
-        f"{settings.PROJECT_NAME}/{settings.DATA_DIR}/"
-        f"{directory}/{settings.ENV}.dataset.tar.gz"
-    )
-    file_name = f"{directory}/dataset.tar.gz"
-
-    try:
-        s3.Bucket(settings.MODELS_S3_BUCKET).download_file(
-            object_name,
-            file_name,
-        )
-        shutil.unpack_archive(file_name, directory)
-        os.remove(file_name)
-        logger.debug("Successfully downloaded dataset")
-    except botocore.exceptions.ClientError as e:
-        if e.response["Error"]["Code"] == "404":
-            logger.error("The object does not exist.")
-        else:
-            raise
-
-
 def download_models() -> None:
     """
     Get models from S3 bucket

@@ -33,6 +33,7 @@ def get_snowflake_ml_pipeline_connection() -> typing.Any:
         password=settings.SNOWFLAKE_ML_PASS,
         role=settings.SNOWFLAKE_ML_ROLE,
         account=settings.SNOWFLAKE_ML_ACCOUNT,
+        region=settings.SNOWFLAKE_ML_REGION,
         database=settings.SNOWFLAKE_ML_DB,
         autocommit=False,
     )

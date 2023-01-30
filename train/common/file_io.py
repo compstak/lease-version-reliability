@@ -30,7 +30,7 @@ def get_aws_cred() -> typing.Any:
     sts_client = boto3.client("sts")
     assumed_role_object = sts_client.assume_role_with_web_identity(
         RoleArn=settings.AWS_ROLE_ARN,
-        RoleSessionName="SalesLinkageSession",
+        RoleSessionName="LeaseVersionReliabilitySession",
         WebIdentityToken=token,
     )
 
@@ -53,39 +53,6 @@ def get_s3_resource() -> typing.Any:
         )
 
     return s3_resource
-
-
-def upload_dataset(directory: str) -> None:
-    """
-    Upload processed dataset to S3 bucket
-    """
-
-    s3 = get_s3_resource()
-    object_name = (
-        f"{settings.PROJECT_NAME}/{settings.DATA_DIR}/"
-        f"{directory}/{settings.ENV}.dataset.tar.gz"
-    )
-    file_name = f"{settings.DATA_DIR}/{directory}/dataset.tar.gz"
-
-    try:
-        shutil.make_archive(
-            f"{settings.DATA_DIR}/{directory}" + "/dataset",
-            "gztar",
-            f"{settings.DATA_DIR}/{directory}",
-        )
-
-        s3.Bucket(settings.MODELS_S3_BUCKET).upload_file(
-            file_name,
-            object_name.format(settings.ENV),
-        )
-
-        os.remove(file_name)
-        logger.debug("Successfully uploaded dataset")
-    except botocore.exceptions.ClientError as e:
-        if e.response["Error"]["Code"] == "404":
-            logger.error("Permission denied when trying to upload file.")
-        else:
-            raise
 
 
 def upload_models() -> None:

@@ -30,12 +30,6 @@ class Settings(BaseSettings):
     DATA_DIR: str = "data"
     MODEL_NAME: str = "lease_reliability_clf.pickle"
 
-    MYSQL_HOST: str
-    MYSQL_USER: str
-    MYSQL_PASS: str
-    MYSQL_PORT: str
-    MYSQL_DB: str
-
     SNOWFLAKE_USER: str
     SNOWFLAKE_PASS: str
     SNOWFLAKE_ACCOUNT: str

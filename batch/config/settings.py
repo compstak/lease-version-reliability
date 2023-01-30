@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     SNOWFLAKE_ML_PASS: str
     SNOWFLAKE_ML_ROLE: str
     SNOWFLAKE_ML_ACCOUNT: str
+    SNOWFLAKE_ML_REGION: str
     SNOWFLAKE_ML_DB: str
 
     AWS_ROLE_ARN: Optional[str] = None

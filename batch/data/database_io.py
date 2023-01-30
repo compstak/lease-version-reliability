@@ -129,6 +129,17 @@ def write_version_realiability_df_snowflake(df, schema, table):
             logger.info("done")
 
 
+def get_column_names(attributes):
+    correct = []
+    filled = []
+    label = []
+    for att in attributes:
+        correct.append(f"{att}_correct")
+        filled.append(f"{att}_filled")
+        label.append(f"{att}_label")
+    return correct, filled, label
+
+
 def get_split_columns(columns):
     X_cols = []
     y_cols = []
