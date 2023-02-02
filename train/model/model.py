@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from train.data.database_io import get_reliable_data_by_attribute
 
 
-def get_column_names(attributes: typing.Dict) -> typing.Any:
+def get_column_names(attributes: typing.Any) -> typing.Any:
     correct = []
     filled = []
     label = []
@@ -36,11 +36,9 @@ def train_multioutput_classifiers(
     X_cols: typing.List,
     y_cols: typing.List,
 ) -> typing.Any:
-
     model_dict = {}
     df_reliable_attributes = get_reliable_data_by_attribute()
     for col in y_cols:
-
         # Remove null attributes
         attribute = col.replace("_label", "")
         ids_to_keep = df_reliable_attributes[

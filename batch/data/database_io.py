@@ -24,7 +24,7 @@ def write_submitter_df_snowflake(
     df: pd.DataFrame,
     schema: str,
     table: str,
-) -> typing.Any:
+) -> None:
     """
     Inserts submitter-reliability table into Snowflake
     """
@@ -84,7 +84,7 @@ def write_version_realiability_df_snowflake(
     df: pd.DataFrame,
     schema: str,
     table: str,
-) -> typing.Any:
+) -> None:
     """
     Inserts version-reliability table into Snowflake
     """

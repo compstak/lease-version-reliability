@@ -123,12 +123,11 @@ def get_rate_features(
 
 def feature_engineering(
     data: pd.DataFrame,
-    col_names_label: typing.List,
-    col_names_filled: typing.List,
-    col_names_correct: typing.List,
-    attributes: typing.Dict,
+    col_names_label: typing.Any,
+    col_names_filled: typing.Any,
+    col_names_correct: typing.Any,
+    attributes: typing.Any,
 ) -> pd.DataFrame:
-
     df_submitter_features = get_features_by_entity(
         data,
         "submitter_person_id",

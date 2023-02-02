@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from train.config.settings import settings
+from batch.config.settings import settings
 from train.data.database import get_snowflake_connection
 
 logger = structlog.get_logger()
@@ -160,7 +160,7 @@ attribute_to_label_dict = {
 }
 
 
-def get_labels(data: pd.DataFrame, attributes: typing.Dict) -> pd.DataFrame:
+def get_labels(data: pd.DataFrame, attributes: typing.Any) -> pd.DataFrame:
     for att in attributes:
         print(f"Calculating Labels: {att}")
         data[att + "_filled"] = np.where(
