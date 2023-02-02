@@ -1,3 +1,6 @@
+import typing
+
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
@@ -5,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from train.data.database_io import get_reliable_data_by_attribute
 
 
-def get_column_names(attributes):
+def get_column_names(attributes: typing.Dict) -> typing.Any:
     correct = []
     filled = []
     label = []
@@ -16,7 +19,7 @@ def get_column_names(attributes):
     return correct, filled, label
 
 
-def get_split_columns(columns):
+def get_split_columns(columns: typing.Any) -> typing.Any:
     X_cols = []
     y_cols = []
     for col in columns:
@@ -28,7 +31,11 @@ def get_split_columns(columns):
     return X_cols, y_cols
 
 
-def train_multioutput_classifiers(df, X_cols, y_cols):
+def train_multioutput_classifiers(
+    df: pd.DataFrame,
+    X_cols: typing.List,
+    y_cols: typing.List,
+) -> typing.Any:
 
     model_dict = {}
     df_reliable_attributes = get_reliable_data_by_attribute()

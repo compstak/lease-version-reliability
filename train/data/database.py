@@ -1,9 +1,11 @@
+import typing
+
 import snowflake.connector
 
 from train.config.settings import settings
 
 
-def get_snowflake_connection():
+def get_snowflake_connection() -> typing.Any:
     """
     Get Snowflake cursor
     """

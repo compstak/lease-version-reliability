@@ -4,7 +4,12 @@ import numpy as np
 import pandas as pd
 
 
-def get_features_by_entity(data, name, label, fill) -> typing.Any:
+def get_features_by_entity(
+    data: pd.DataFrame,
+    name: str,
+    label: typing.List,
+    fill: typing.List,
+) -> pd.DataFrame:
     df_metrics = pd.DataFrame()
     ids = list(data[name].unique())
     if np.NaN in ids:
@@ -61,12 +66,12 @@ def get_features_by_entity(data, name, label, fill) -> typing.Any:
 
 
 def combine_features(
-    data,
-    agg_data,
-    name,
-    how,
-    correct,
-    filled,
+    data: pd.DataFrame,
+    agg_data: pd.DataFrame,
+    name: str,
+    how: str,
+    correct: typing.List,
+    filled: typing.List,
 ) -> pd.DataFrame:
     df = data.merge(agg_data, how=how)
 
@@ -83,7 +88,10 @@ def combine_features(
     return df.fillna(0)
 
 
-def get_rate_features(data, attributes) -> pd.DataFrame:
+def get_rate_features(
+    data: pd.DataFrame,
+    attributes: typing.Dict,
+) -> pd.DataFrame:
     df = data
     for att in attributes:
         df[f"{att}_submitter_correct_rate"] = np.where(
@@ -114,11 +122,11 @@ def get_rate_features(data, attributes) -> pd.DataFrame:
 
 
 def feature_engineering(
-    data,
-    col_names_label,
-    col_names_filled,
-    col_names_correct,
-    attributes,
+    data: pd.DataFrame,
+    col_names_label: typing.List,
+    col_names_filled: typing.List,
+    col_names_correct: typing.List,
+    attributes: typing.Dict,
 ) -> pd.DataFrame:
 
     df_submitter_features = get_features_by_entity(

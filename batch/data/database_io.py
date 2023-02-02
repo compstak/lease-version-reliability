@@ -1,5 +1,7 @@
 import datetime
+import typing
 
+import pandas as pd
 import structlog
 
 from batch.config.settings import settings
@@ -18,7 +20,11 @@ def read_file(path: str) -> str:
     return query
 
 
-def write_submitter_df_snowflake(df, schema, table):
+def write_submitter_df_snowflake(
+    df: pd.DataFrame,
+    schema: str,
+    table: str,
+) -> typing.Any:
     """
     Inserts submitter-reliability table into Snowflake
     """
@@ -74,7 +80,11 @@ def write_submitter_df_snowflake(df, schema, table):
             logger.info("done")
 
 
-def write_version_realiability_df_snowflake(df, schema, table):
+def write_version_realiability_df_snowflake(
+    df: pd.DataFrame,
+    schema: str,
+    table: str,
+) -> typing.Any:
     """
     Inserts version-reliability table into Snowflake
     """
@@ -129,7 +139,7 @@ def write_version_realiability_df_snowflake(df, schema, table):
             logger.info("done")
 
 
-def get_column_names(attributes):
+def get_column_names(attributes: typing.Any) -> typing.Any:
     correct = []
     filled = []
     label = []
@@ -140,7 +150,9 @@ def get_column_names(attributes):
     return correct, filled, label
 
 
-def get_split_columns(columns):
+def get_split_columns(
+    columns: typing.Any,
+) -> typing.Any:
     X_cols = []
     y_cols = []
     for col in columns:

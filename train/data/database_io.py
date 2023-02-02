@@ -1,4 +1,5 @@
 from datetime import timedelta
+import typing
 
 import dateutil.parser as parser
 import jellyfish
@@ -22,7 +23,7 @@ def read_file(path: str) -> str:
     return query
 
 
-def get_reliable_data():
+def get_reliable_data() -> pd.DataFrame:
     query = read_file("reliable_data.sql")
     df = pd.read_sql(
         query,
@@ -32,7 +33,7 @@ def get_reliable_data():
     return df
 
 
-def get_all_data():
+def get_all_data() -> pd.DataFrame:
     query = read_file("all_data.sql")
     df = pd.read_sql(
         query,
@@ -42,7 +43,7 @@ def get_all_data():
     return df
 
 
-def get_reliable_data_by_attribute():
+def get_reliable_data_by_attribute() -> pd.DataFrame:
     query = read_file("reliable_data_by_attribute.sql")
     df = pd.read_sql(
         query,
@@ -52,7 +53,10 @@ def get_reliable_data_by_attribute():
     return df
 
 
-def label_strict_equality(subject, target):
+def label_strict_equality(
+    subject: typing.Any,
+    target: typing.Any,
+) -> typing.Any:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     if subject == target:
@@ -60,7 +64,10 @@ def label_strict_equality(subject, target):
     return 0
 
 
-def label_tenant_name(subject, target):
+def label_tenant_name(
+    subject: typing.Any,
+    target: typing.Any,
+) -> typing.Any:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     if subject == target:
@@ -71,7 +78,10 @@ def label_tenant_name(subject, target):
     return 0
 
 
-def label_transaction_size(subject, target):
+def label_transaction_size(
+    subject: typing.Any,
+    target: typing.Any,
+) -> typing.Any:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     if subject >= target * 0.95 and subject <= target * 1.05:
@@ -79,7 +89,7 @@ def label_transaction_size(subject, target):
     return 0
 
 
-def label_execution_date(subject, target):
+def label_execution_date(subject: typing.Any, target: typing.Any) -> typing.Any:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     subject = str(subject)
@@ -91,7 +101,10 @@ def label_execution_date(subject, target):
     return 0
 
 
-def label_commencement_date(subject, target):
+def label_commencement_date(
+    subject: typing.Any,
+    target: typing.Any,
+) -> typing.Any:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     subject = str(subject)
@@ -103,7 +116,10 @@ def label_commencement_date(subject, target):
     return 0
 
 
-def label_expiration_date(subject, target):
+def label_expiration_date(
+    subject: typing.Any,
+    target: typing.Any,
+) -> typing.Any:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     subject = str(subject)
@@ -115,7 +131,10 @@ def label_expiration_date(subject, target):
     return 0
 
 
-def label_lease_term(subject, target):
+def label_lease_term(
+    subject: typing.Any,
+    target: typing.Any,
+) -> typing.Any:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     if subject >= target * 0.92 and subject <= target * 1.08:
@@ -141,7 +160,7 @@ attribute_to_label_dict = {
 }
 
 
-def get_labels(data, attributes):
+def get_labels(data: pd.DataFrame, attributes: typing.Dict) -> pd.DataFrame:
     for att in attributes:
         print(f"Calculating Labels: {att}")
         data[att + "_filled"] = np.where(

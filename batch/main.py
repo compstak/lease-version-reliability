@@ -1,4 +1,5 @@
 import asyncio
+import typing
 
 import numpy as np
 import pandas as pd
@@ -24,7 +25,7 @@ logger = structlog.get_logger()
 initialize_logging(settings.ENV)
 
 
-def load_data():
+def load_data() -> typing.Tuple[pd.DataFrame, pd.DataFrame]:
     # training data (masters with >3 versions within it)
     reliable_data = get_reliable_data()
 
