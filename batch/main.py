@@ -108,6 +108,8 @@ async def main() -> None:
             "VERSION",
         )
 
+    print(submitter_df.head(), version_reliability_df.head())
+
 
 if __name__ == "__main__":
     asyncio.run(main())

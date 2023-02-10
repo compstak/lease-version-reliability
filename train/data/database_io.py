@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from batch.config.settings import settings
+from train.config.settings import settings
 from train.data.database import get_snowflake_connection
 
 logger = structlog.get_logger()

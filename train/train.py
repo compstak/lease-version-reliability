@@ -3,9 +3,9 @@ import pickle
 
 import structlog
 
-from batch.common.file_io import upload_models
-from batch.config.settings import settings
+from train.common.file_io import upload_models
 from train.common.logging import initialize_logging
+from train.config.settings import settings
 from train.data.database_io import get_labels, get_reliable_data
 from train.features.features import feature_engineering
 from train.model.model import (
