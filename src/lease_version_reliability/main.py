@@ -6,6 +6,7 @@ import structlog
 from typer import Option, Typer
 
 from lease_version_reliability.common.logging import initialize_logging
+from lease_version_reliability.models.inference import run_inference
 from lease_version_reliability.models.train import train_model
 
 initialize_logging()
@@ -17,7 +18,7 @@ console = Console()
 @app.command()
 def main() -> None:
     """Run training script"""
-    console.print("Welcome to owner relationship cli")
+    console.print("Welcome to lease version reliability cli")
 
 
 @app.command()
@@ -31,6 +32,19 @@ def train(
         await train_model(model)
 
     asyncio.run(_train(model))
+
+
+@app.command()
+def inference(
+    model: bool = Option(False, help="Download model."),
+) -> None:
+    """Run training script"""
+    logger.info("Training inference model start.")
+
+    async def _inference(model: bool) -> None:
+        await run_inference(model)
+
+    asyncio.run(_inference(model))
 
 
 if __name__ == "__main__":  # pragma: no cover

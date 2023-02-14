@@ -1,17 +1,14 @@
-import typing
-import warnings
+from typing import Any
 
 import pandas as pd
-
-warnings.filterwarnings("ignore")
 
 
 def get_submitter_reliability(
     df: pd.DataFrame,
-    X_cols: typing.Any,
-    y_cols: typing.Any,
-    model_dict: typing.Dict,
-) -> typing.Any:
+    X_cols: Any,
+    y_cols: Any,
+    model_dict: dict[Any, Any],
+) -> Any:
     submitter_info = df[["submitter_person_id"] + X_cols].drop_duplicates()
     submitter_info[
         "n_support"
@@ -52,10 +49,10 @@ def get_submitter_reliability(
 
 def get_version_reliability(
     data: pd.DataFrame,
-    attributes: typing.Any,
-    x_cols: typing.Any,
-    y_cols: typing.Any,
-    model_dict: typing.Dict,
+    attributes: Any,
+    x_cols: Any,
+    y_cols: Any,
+    model_dict: dict[Any, Any],
 ) -> pd.DataFrame:
     val_df = pd.DataFrame()
     val_df["comp_data_id_version"] = data["comp_data_id_version"]

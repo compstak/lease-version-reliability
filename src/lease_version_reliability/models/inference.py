@@ -1,31 +1,31 @@
-import asyncio
-import typing
-
 import numpy as np
 import pandas as pd
 import structlog
 
-from batch.common.file_io import download_models
-from batch.common.logging import initialize_logging
-from batch.config.settings import settings
-from batch.data.database_io import (
+from lease_version_reliability.common.file_io import download_models, read_model
+from lease_version_reliability.config.settings import settings
+from lease_version_reliability.data.database_io import (
+    get_all_data,
     get_column_names,
+    get_labels,
+    get_reliable_data,
     get_split_columns,
     write_submitter_df_snowflake,
     write_version_realiability_df_snowflake,
 )
-from batch.data.output_data import (
+from lease_version_reliability.data.output_data import (
     get_submitter_reliability,
     get_version_reliability,
 )
-from train.data.database_io import get_all_data, get_labels, get_reliable_data
-from train.features.features import feature_engineering
+from lease_version_reliability.features.build_features import (
+    feature_engineering,
+)
 
 logger = structlog.get_logger()
-initialize_logging(settings.ENV)
 
 
-def load_data() -> typing.Tuple[pd.DataFrame, pd.DataFrame]:
+def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """"""
     # training data (masters with >3 versions within it)
     reliable_data = get_reliable_data()
 
@@ -64,10 +64,11 @@ def load_data() -> typing.Tuple[pd.DataFrame, pd.DataFrame]:
     return df, df_all
 
 
-async def main() -> None:
-    logger.info("Downloading lease-reliability classifiers from S3")
-    download_models()
-    model_dict = pd.read_pickle(f"{settings.MODEL_DIR}/{settings.MODEL_NAME}")
+async def run_inference(download: bool) -> None:
+    """"""
+    if download:
+        download_models()
+    model_dict = read_model(settings.TRAIN_CONFIG.MODEL_FILENAME)
 
     df, df_all = load_data()
     x_cols, y_cols = get_split_columns(df.columns)
@@ -86,7 +87,6 @@ async def main() -> None:
         model_dict,
     )
 
-    # export submitter result to Snowflake
     logger.info("Exporting <SUBMITTER RELIABILITY> into Snowflake")
     write_submitter_df_snowflake(
         submitter_df,
@@ -94,12 +94,14 @@ async def main() -> None:
         "SUBMITTER",
     )
 
-    # export version result to Snowflake
     logger.info("Exporting <VERSION RELIABILITY> into Snowflake")
     logger.info(f"Total len of {len(version_reliability_df)}")
 
     for i, chunk in enumerate(
-        np.array_split(version_reliability_df, settings.BATCH_SIZE),
+        np.array_split(
+            version_reliability_df,
+            settings.BATCH_CONFIG.BATCH_SIZE,
+        ),
     ):
         logger.info(f"processing batch: {i + 1}/10")
         write_version_realiability_df_snowflake(
@@ -109,7 +111,3 @@ async def main() -> None:
         )
 
     print(submitter_df.head(), version_reliability_df.head())
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

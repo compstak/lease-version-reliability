@@ -67,7 +67,7 @@ def get_aws_cred() -> Any:
     sts_client = boto3.client("sts")
     assumed_role_object = sts_client.assume_role_with_web_identity(
         RoleArn=settings.AWS_ROLE_ARN,
-        RoleSessionName="OwnerRelationshipSession",
+        RoleSessionName="LeaseVersionReliabilitySession",
         WebIdentityToken=token,
     )
 
@@ -131,7 +131,7 @@ def upload_models() -> None:
     try:
         logger.debug("Uploading classifier.")
         shutil.make_archive(
-            settings.MODEL_DIR + "model",
+            f"{settings.MODEL_DIR}/model",
             "gztar",
             settings.MODEL_DIR,
         )

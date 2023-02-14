@@ -6,6 +6,12 @@ from pydantic import BaseModel, BaseSettings
 from lease_version_reliability.config.attributes import attributes
 
 
+class BatchConfig(BaseModel):
+    """Application configurations."""
+
+    BATCH_SIZE: int = 10
+
+
 class TrainConfig(BaseModel):
     """Application configurations."""
 
@@ -15,6 +21,7 @@ class TrainConfig(BaseModel):
 class Settings(BaseSettings):
     ENV: str = "dev"
     PROJECT_NAME: str = "lease-version-reliability"
+    BATCH_CONFIG: BatchConfig = BatchConfig()
     TRAIN_CONFIG: TrainConfig = TrainConfig()
 
     ATTRIBUTES: list[str] = attributes
@@ -31,6 +38,13 @@ class Settings(BaseSettings):
     SNOWFLAKE_REGION: str = ""
     SNOWFLAKE_WH: str = ""
     SNOWFLAKE_DB: str = ""
+
+    SNOWFLAKE_ML_USER: str
+    SNOWFLAKE_ML_PASS: str
+    SNOWFLAKE_ML_ROLE: str
+    SNOWFLAKE_ML_ACCOUNT: str
+    SNOWFLAKE_ML_REGION: str
+    SNOWFLAKE_ML_DB: str
 
     AWS_ROLE_ARN: Optional[str] = None
     AWS_WEB_IDENTITY_TOKEN_FILE: Optional[str] = None
