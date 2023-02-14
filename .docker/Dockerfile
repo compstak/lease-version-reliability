@@ -42,6 +42,10 @@ RUN mkdir ${APP_HOME}
 
 WORKDIR ${APP_HOME}
 
+RUN mkdir -p data/raw && \
+    mkdir -p data/processed && \
+    mkdir -p models
+
 COPY --from=python_builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 ENV PATH "${VIRTUAL_ENV}/bin:${PATH}"
 
