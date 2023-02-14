@@ -55,6 +55,7 @@ optional = true
 
 [tool.poetry.group.type_check.dependencies]
 mypy = "*"
+types-python-dateutil = "*"
 
 [tool.poetry.group.lint]
 optional = true
