@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from train.config.settings import settings
-from train.data.database import get_snowflake_connection
+from lease_version_reliability.config.settings import settings
+from lease_version_reliability.data.database import get_snowflake_connection
 
 logger = structlog.get_logger()
 
@@ -89,7 +89,10 @@ def label_transaction_size(
     return 0
 
 
-def label_execution_date(subject: typing.Any, target: typing.Any) -> typing.Any:
+def label_execution_date(
+    subject: typing.Any,
+    target: typing.Any,
+) -> typing.Any:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     subject = str(subject)

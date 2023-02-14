@@ -1,4 +1,4 @@
-import typing
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -7,8 +7,8 @@ import pandas as pd
 def get_features_by_entity(
     data: pd.DataFrame,
     name: str,
-    label: typing.List,
-    fill: typing.List,
+    label: list[Any],
+    fill: list[Any],
 ) -> pd.DataFrame:
     df_metrics = pd.DataFrame()
     ids = list(data[name].unique())
@@ -70,8 +70,8 @@ def combine_features(
     agg_data: pd.DataFrame,
     name: str,
     how: str,
-    correct: typing.List,
-    filled: typing.List,
+    correct: list[Any],
+    filled: list[Any],
 ) -> pd.DataFrame:
     df = data.merge(agg_data, how=how)
 
@@ -90,7 +90,7 @@ def combine_features(
 
 def get_rate_features(
     data: pd.DataFrame,
-    attributes: typing.Dict,
+    attributes: dict[Any, Any],
 ) -> pd.DataFrame:
     df = data
     for att in attributes:
@@ -123,10 +123,10 @@ def get_rate_features(
 
 def feature_engineering(
     data: pd.DataFrame,
-    col_names_label: typing.Any,
-    col_names_filled: typing.Any,
-    col_names_correct: typing.Any,
-    attributes: typing.Any,
+    col_names_label: Any,
+    col_names_filled: Any,
+    col_names_correct: Any,
+    attributes: Any,
 ) -> pd.DataFrame:
     df_submitter_features = get_features_by_entity(
         data,

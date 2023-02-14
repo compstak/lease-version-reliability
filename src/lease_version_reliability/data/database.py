@@ -2,7 +2,7 @@ import typing
 
 import snowflake.connector
 
-from batch.config.settings import settings
+from lease_version_reliability.config.settings import settings
 
 
 def get_snowflake_connection() -> typing.Any:
@@ -18,4 +18,5 @@ def get_snowflake_connection() -> typing.Any:
         database=settings.SNOWFLAKE_DB,
         autocommit=False,
     )
+
     return connection
