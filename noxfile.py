@@ -6,14 +6,13 @@ nox.options.reuse_existing_virtualenvs = True
 nox.options.sessions = ["type_check", "test"]
 
 
-@session()
+@session(venv_backend="none")
 def test(s: Session) -> None:
-    s.install(".", "pytest", "pytest-cov", "mypy")
     s.run(
         "python",
         "-m",
         "pytest",
-        "--cov=owner_relationship",
+        "--cov=lease_version_reliability",
         "--cov-report=html",
         "--cov-report=term",
         "--junitxml=test-results/junit.xml",
