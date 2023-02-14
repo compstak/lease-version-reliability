@@ -17,7 +17,7 @@ console = Console()
 
 @app.command()
 def main() -> None:
-    """Run training script"""
+    """Run cli main"""
     console.print("Welcome to lease version reliability cli")
 
 
@@ -38,7 +38,7 @@ def train(
 def inference(
     model: bool = Option(False, help="Download model."),
 ) -> None:
-    """Run training script"""
+    """Run inference script"""
     logger.info("Training inference model start.")
 
     async def _inference(model: bool) -> None:
