@@ -110,4 +110,5 @@ async def run_inference(download: bool) -> None:
             "VERSION",
         )
 
-    print(submitter_df.head(), version_reliability_df.head())
+    logger.debug(submitter_df.head())
+    logger.debug(version_reliability_df.head())

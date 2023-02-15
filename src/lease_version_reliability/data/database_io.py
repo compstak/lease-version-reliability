@@ -168,7 +168,7 @@ attribute_to_label_dict = {
 
 def get_labels(data: pd.DataFrame, attributes: typing.Any) -> pd.DataFrame:
     for att in attributes:
-        print(f"Calculating Labels: {att}")
+        logger.info(f"Calculating Labels: {att}")
         data[att + "_filled"] = np.where(
             (pd.notnull(data[att + "_version"])),
             1,

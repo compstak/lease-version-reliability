@@ -77,12 +77,12 @@ def train_multioutput_classifiers(
         acc = accuracy_score(y_test, test_preds)
         f1 = f1_score(y_test, test_preds)
 
-        print(attribute)
-        print(f"Training Data Size: {len(x_train)}")
-        print(f"{col} - Accuracy : {acc}")
-        print(f"{col} - F1 : {f1}")
-        print(y.value_counts())
-        print("----------------------------------")
+        logger.debug(attribute)
+        logger.debug(f"Training Data Size: {len(x_train)}")
+        logger.debug(f"{col} - Accuracy : {acc}")
+        logger.debug(f"{col} - F1 : {f1}")
+        logger.debug(y.value_counts())
+        logger.debug("----------------------------------")
 
         model_dict[col] = clf
 
