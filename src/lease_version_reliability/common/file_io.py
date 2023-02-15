@@ -39,12 +39,14 @@ def save_model(obj: Any, filename: str) -> None:
 
 def read_model(filename: str) -> Any:
     """"""
-    read_pickle(
+    model = read_pickle(
         "{directory}/{filename}".format(
             directory=settings.MODEL_DIR,
             filename=filename,
         ),
     )
+
+    return model
 
 
 def get_web_identity_token() -> str:
