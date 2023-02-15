@@ -160,6 +160,9 @@ cython_debug/
 .idea/
 .vscode
 
+# mac
+.DS_Store
+
 # Data & Models
 data/raw/*
 data/processed/*
