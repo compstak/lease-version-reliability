@@ -9,7 +9,7 @@ import structlog
 
 from lease_version_reliability.config.settings import settings
 from lease_version_reliability.data.database import (
-    get_snowflake_connection,
+    CompstakServicesMySQL,
     get_snowflake_ml_pipeline_connection,
 )
 
@@ -26,40 +26,59 @@ def read_file(path: str) -> str:
     return query
 
 
-def get_reliable_data() -> pd.DataFrame:
+async def get_logo_df(data: pd.DataFrame) -> pd.DataFrame:
+    snowflake_conn = get_snowflake_ml_pipeline_connection()
+
+    query = read_file("submission_logo.sql")
+    cursor = snowflake_conn.cursor()
+    cursor.execute(query)
+    logo_data = cursor.fetch_pandas_all()
+    cursor.close()
+
+    logo_data.columns = [x.lower() for x in logo_data.columns]
+    data = data.merge(
+        right=logo_data,
+        how="left",
+        left_on="specialk_id",
+        right_on="submission_id",
+    )
+    data = data.drop(["submission_id"], axis=1)
+    return data
+
+
+async def get_reliable_data(db: CompstakServicesMySQL) -> pd.DataFrame:
     query = read_file("reliable_data.sql")
-    df = pd.read_sql(
-        query,
-        get_snowflake_connection(),
-    )
-    df.columns = [x.lower() for x in df.columns]
-    return df
+    data = [dict(item) for item in await db.fetch_all(query)]
+    data = pd.DataFrame(data)
+
+    data = await get_logo_df(data)
+
+    return data
 
 
-def get_all_data() -> pd.DataFrame:
+async def get_all_data(db: CompstakServicesMySQL) -> pd.DataFrame:
     query = read_file("all_data.sql")
-    df = pd.read_sql(
-        query,
-        get_snowflake_connection(),
-    )
-    df.columns = [x.lower() for x in df.columns]
-    return df
+    data = [dict(item) for item in await db.fetch_all(query)]
+    data = pd.DataFrame(data)
+
+    data = await get_logo_df(data)
+
+    return data
 
 
-def get_reliable_data_by_attribute() -> pd.DataFrame:
+async def get_reliable_data_by_attribute(
+    db: CompstakServicesMySQL,
+) -> pd.DataFrame:
     query = read_file("reliable_data_by_attribute.sql")
-    df = pd.read_sql(
-        query,
-        get_snowflake_connection(),
-    )
-    df.columns = [x.lower() for x in df.columns]
-    return df
+    data = [dict(item) for item in await db.fetch_all(query)]
+    data = pd.DataFrame(data)
+    return data
 
 
 def label_strict_equality(
-    subject: typing.Any,
-    target: typing.Any,
-) -> typing.Any:
+    subject: str,
+    target: str,
+) -> float:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     if subject == target:
@@ -68,9 +87,9 @@ def label_strict_equality(
 
 
 def label_tenant_name(
-    subject: typing.Any,
-    target: typing.Any,
-) -> typing.Any:
+    subject: str,
+    target: str,
+) -> float:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     if subject == target:
@@ -82,9 +101,9 @@ def label_tenant_name(
 
 
 def label_transaction_size(
-    subject: typing.Any,
-    target: typing.Any,
-) -> typing.Any:
+    subject: float,
+    target: float,
+) -> float:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     if subject >= target * 0.95 and subject <= target * 1.05:
@@ -93,9 +112,9 @@ def label_transaction_size(
 
 
 def label_execution_date(
-    subject: typing.Any,
-    target: typing.Any,
-) -> typing.Any:
+    subject: str,
+    target: str,
+) -> float:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     subject = str(subject)
@@ -108,9 +127,9 @@ def label_execution_date(
 
 
 def label_commencement_date(
-    subject: typing.Any,
-    target: typing.Any,
-) -> typing.Any:
+    subject: str,
+    target: str,
+) -> float:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     subject = str(subject)
@@ -138,9 +157,9 @@ def label_expiration_date(
 
 
 def label_lease_term(
-    subject: typing.Any,
-    target: typing.Any,
-) -> typing.Any:
+    subject: float,
+    target: float,
+) -> float:
     if pd.isnull(subject) or pd.isnull(target):
         return -1
     if subject >= target * 0.92 and subject <= target * 1.08:
@@ -166,7 +185,7 @@ attribute_to_label_dict = {
 }
 
 
-def get_labels(data: pd.DataFrame, attributes: typing.Any) -> pd.DataFrame:
+def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
     for att in attributes:
         logger.info(f"Calculating Labels: {att}")
         data[att + "_filled"] = np.where(

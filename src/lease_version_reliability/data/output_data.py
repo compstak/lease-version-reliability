@@ -8,8 +8,11 @@ def get_submitter_reliability(
     X_cols: Any,
     y_cols: Any,
     model_dict: dict[Any, Any],
-) -> Any:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     submitter_info = df[["submitter_person_id"] + X_cols].drop_duplicates()
+    for col in submitter_info:
+        if ("logo" in col) and ("submitter" not in col):
+            submitter_info[col] = 0
     submitter_info[
         "n_support"
     ] = submitter_info.submitter_person_id.value_counts()[

@@ -4,6 +4,8 @@ import structlog
 
 from lease_version_reliability.common.file_io import download_models, read_model
 from lease_version_reliability.config.settings import settings
+from lease_version_reliability.data.database import CompstakServicesMySQL
+from lease_version_reliability.data.database import cs_mysql_instance as mysql
 from lease_version_reliability.data.database_io import (
     get_all_data,
     get_column_names,
@@ -24,13 +26,15 @@ from lease_version_reliability.features.build_features import (
 logger = structlog.get_logger()
 
 
-def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
+async def load_data(
+    db: CompstakServicesMySQL,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """"""
     # training data (masters with >3 versions within it)
-    reliable_data = get_reliable_data()
+    reliable_data = await get_reliable_data(db)
 
     # all version data needed to export a reliability score
-    all_data = get_all_data()
+    all_data = await get_all_data(db)
 
     attributes = settings.ATTRIBUTES
 
@@ -66,11 +70,14 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 async def run_inference(download: bool) -> None:
     """"""
+
+    logger.info("Connecting to MySQL")
+    await mysql.connect()
     if download:
         download_models()
     model_dict = read_model(settings.TRAIN_CONFIG.MODEL_FILENAME)
 
-    df, df_all = load_data()
+    df, df_all = await load_data(mysql)
     x_cols, y_cols = get_split_columns(df.columns)
 
     attributes = settings.ATTRIBUTES
@@ -110,5 +117,8 @@ async def run_inference(download: bool) -> None:
             "VERSION",
         )
 
-    logger.debug(submitter_df.head())
-    logger.debug(version_reliability_df.head())
+    logger.info(submitter_df.head())
+    logger.info(version_reliability_df.head())
+
+    logger.info("Disconnecting to MySQL")
+    await mysql.disconnect()

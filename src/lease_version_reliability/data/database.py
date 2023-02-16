@@ -1,28 +1,27 @@
-import typing
+import logging
 
+from databases import Database
 import snowflake.connector
 
 from lease_version_reliability.config.settings import settings
 
-
-def get_snowflake_connection() -> typing.Any:
-    """
-    Get Snowflake cursor
-    """
-    connection = snowflake.connector.connect(
-        user=settings.SNOWFLAKE_USER,
-        password=settings.SNOWFLAKE_PASS,
-        account=settings.SNOWFLAKE_ACCOUNT,
-        region=settings.SNOWFLAKE_REGION,
-        warehouse=settings.SNOWFLAKE_WH,
-        database=settings.SNOWFLAKE_DB,
-        autocommit=False,
-    )
-
-    return connection
+logging.basicConfig(level=logging.INFO)
 
 
-def get_snowflake_ml_pipeline_connection() -> typing.Any:
+class CompstakServicesMySQL(Database):
+    def __init__(self) -> None:
+        super().__init__(
+            "mysql://{}:{}@{}:{}/{}".format(
+                settings.MYSQL_USER,
+                settings.MYSQL_PASS,
+                settings.MYSQL_HOST,
+                settings.MYSQL_PORT,
+                settings.MYSQL_DB,
+            ),
+        )
+
+
+def get_snowflake_ml_pipeline_connection() -> snowflake.connector:
     """
     Get Snowflake cursor
     """
@@ -37,3 +36,6 @@ def get_snowflake_ml_pipeline_connection() -> typing.Any:
     )
 
     return connection
+
+
+cs_mysql_instance = CompstakServicesMySQL()

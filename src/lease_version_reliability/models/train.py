@@ -1,5 +1,3 @@
-from typing import Any
-
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score
@@ -8,6 +6,8 @@ import structlog
 
 from lease_version_reliability.common.file_io import save_model, upload_models
 from lease_version_reliability.config.settings import settings
+from lease_version_reliability.data.database import CompstakServicesMySQL
+from lease_version_reliability.data.database import cs_mysql_instance as mysql
 from lease_version_reliability.data.database_io import (
     get_labels,
     get_reliable_data,
@@ -20,7 +20,9 @@ from lease_version_reliability.features.build_features import (
 logger = structlog.get_logger()
 
 
-def get_column_names(attributes: Any) -> Any:
+def get_column_names(
+    attributes: list[str],
+) -> tuple[list[str], list[str], list[str]]:
     correct = []
     filled = []
     label = []
@@ -28,10 +30,10 @@ def get_column_names(attributes: Any) -> Any:
         correct.append(f"{att}_correct")
         filled.append(f"{att}_filled")
         label.append(f"{att}_label")
-    return correct, filled, label
+    return (correct, filled, label)
 
 
-def get_split_columns(columns: Any) -> Any:
+def get_split_columns(columns: list[str]) -> tuple[list[str], list[str]]:
     X_cols = []
     y_cols = []
     for col in columns:
@@ -43,14 +45,17 @@ def get_split_columns(columns: Any) -> Any:
     return X_cols, y_cols
 
 
-def train_multioutput_classifiers(
+async def train_multioutput_classifiers(
+    db: CompstakServicesMySQL,
     df: pd.DataFrame,
-    X_cols: list[Any],
-    y_cols: list[Any],
-) -> Any:
+    X_cols: list[str],
+    y_cols: list[str],
+) -> dict[str, RandomForestClassifier()]:
     model_dict = {}
-    df_reliable_attributes = get_reliable_data_by_attribute()
+    logger.info("Get reliable versions by attribute")
+    df_reliable_attributes = await get_reliable_data_by_attribute(db)
     for col in y_cols:
+        logger.info(f"Attribute: {col}")
         # Remove null attributes
         attribute = col.replace("_label", "")
         ids_to_keep = df_reliable_attributes[
@@ -66,7 +71,7 @@ def train_multioutput_classifiers(
             test_size=0.2,
             random_state=10,
         )
-        class_weight = "balanced"
+        class_weight = "balanced_subsample"
         clf = RandomForestClassifier(
             class_weight=class_weight,
             random_state=1,
@@ -77,12 +82,12 @@ def train_multioutput_classifiers(
         acc = accuracy_score(y_test, test_preds)
         f1 = f1_score(y_test, test_preds)
 
-        logger.debug(attribute)
-        logger.debug(f"Training Data Size: {len(x_train)}")
-        logger.debug(f"{col} - Accuracy : {acc}")
-        logger.debug(f"{col} - F1 : {f1}")
-        logger.debug(y.value_counts())
-        logger.debug("----------------------------------")
+        logger.info(attribute)
+        logger.info(f"Training Data Size: {len(x_train)}")
+        logger.info(f"{col} - Accuracy : {acc}")
+        logger.info(f"{col} - F1 : {f1}")
+        logger.info(y.value_counts())
+        logger.info("----------------------------------")
 
         model_dict[col] = clf
 
@@ -91,9 +96,13 @@ def train_multioutput_classifiers(
 
 async def train_model(upload: bool) -> None:
     """"""
-    logger.info("Lease version reliability model training start.")
+
+    logger.info("Connecting to MySQL")
+    await mysql.connect()
+
+    logger.info("Get Reliable Data")
     # training data (masters with >3 versions within it)
-    reliable_data = get_reliable_data()
+    reliable_data = await get_reliable_data(mysql)
 
     attributes = settings.ATTRIBUTES
 
@@ -115,11 +124,13 @@ async def train_model(upload: bool) -> None:
 
     logger.info("Model Training")
     x_cols, y_cols = get_split_columns(df.columns)
-    model_dict = train_multioutput_classifiers(df, x_cols, y_cols)
+    model_dict = await train_multioutput_classifiers(mysql, df, x_cols, y_cols)
 
+    logger.info("Saving Models")
     save_model(model_dict, settings.TRAIN_CONFIG.MODEL_FILENAME)
 
     if upload:
         upload_models()
 
-    logger.info("Lease version reliability model training end.")
+    logger.info("Disconnecting to MySQL")
+    await mysql.disconnect()

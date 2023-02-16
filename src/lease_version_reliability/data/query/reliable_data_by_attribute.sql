@@ -2,7 +2,7 @@ SELECT
 cmv2.comp_version_id,
 sub.*
 FROM
-internal_analytics.mysql_compstak.comp_master_versions cmv2
+comp_master_versions cmv2
 join (
 select cmv.comp_master_id,
 count(tv.name) as tenant_name_count,
@@ -20,18 +20,18 @@ count(cdv.rent_bumps_percent_bumps) as rent_bumps_percent_bumps_count,
 count(cdv.rent_bumps_dollar_bumps) as rent_bumps_dollar_bumps_count,
 count(cdv.lease_type_id) as lease_type_id_count
 
-from internal_analytics.mysql_compstak.comp_master_versions cmv
-JOIN internal_analytics.mysql_compstak.comp_version cv
+from comp_master_versions cmv
+JOIN comp_version cv
     ON cmv.comp_version_id = cv.id
-join internal_analytics.mysql_compstak.comp_data cdv
+join comp_data cdv
     ON cdv.id = cv.comp_data_id
-LEFT JOIN internal_analytics.mysql_compstak.tenant tv
+LEFT JOIN tenant tv
     ON tv.id = cdv.tenant_id
-JOIN internal_analytics.mysql_compstak.comp_data_calculated_fields cdcfv
+JOIN comp_data_calculated_fields cdcfv
     ON cdv.id = cdcfv.comp_data_id
-LEFT JOIN internal_analytics.mysql_compstak.tenant tm
+LEFT JOIN tenant tm
     ON tm.id = cdv.tenant_id
-JOIN internal_analytics.mysql_compstak.comp_data_calculated_fields cdcfm
+JOIN comp_data_calculated_fields cdcfm
     ON cdv.id = cdcfm.comp_data_id
-group by 1 ) as sub
+group by 1  ) as sub
 on cmv2.comp_master_id = sub.comp_master_id
