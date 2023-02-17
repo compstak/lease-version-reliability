@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, BaseSettings
 
-from src.lease_version_reliability.config.attributes import attributes
+from lease_version_reliability.config.attributes import attributes
 
 
 class BatchConfig(BaseModel):

@@ -4,21 +4,16 @@ from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 import structlog
 
-from src.lease_version_reliability.common.file_io import (
-    save_model,
-    upload_models,
-)
-from src.lease_version_reliability.config.settings import settings
-from src.lease_version_reliability.data.database import (
-    cs_mysql_instance as mysql,
-)
-from src.lease_version_reliability.data.database import CompstakServicesMySQL
-from src.lease_version_reliability.data.database_io import (
+from lease_version_reliability.common.file_io import save_model, upload_models
+from lease_version_reliability.config.settings import settings
+from lease_version_reliability.data.database import CompstakServicesMySQL
+from lease_version_reliability.data.database import cs_mysql_instance as mysql
+from lease_version_reliability.data.database_io import (
     get_labels,
     get_reliable_data,
     get_reliable_data_by_attribute,
 )
-from src.lease_version_reliability.features.build_features import (
+from lease_version_reliability.features.build_features import (
     feature_engineering,
 )
 

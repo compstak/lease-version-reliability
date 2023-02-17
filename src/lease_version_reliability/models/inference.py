@@ -2,16 +2,11 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from src.lease_version_reliability.common.file_io import (
-    download_models,
-    read_model,
-)
-from src.lease_version_reliability.config.settings import settings
-from src.lease_version_reliability.data.database import (
-    cs_mysql_instance as mysql,
-)
-from src.lease_version_reliability.data.database import CompstakServicesMySQL
-from src.lease_version_reliability.data.database_io import (
+from lease_version_reliability.common.file_io import download_models, read_model
+from lease_version_reliability.config.settings import settings
+from lease_version_reliability.data.database import CompstakServicesMySQL
+from lease_version_reliability.data.database import cs_mysql_instance as mysql
+from lease_version_reliability.data.database_io import (
     get_all_data,
     get_column_names,
     get_labels,
@@ -20,11 +15,11 @@ from src.lease_version_reliability.data.database_io import (
     write_submitter_df_snowflake,
     write_version_realiability_df_snowflake,
 )
-from src.lease_version_reliability.data.output_data import (
+from lease_version_reliability.data.output_data import (
     get_submitter_reliability,
     get_version_reliability,
 )
-from src.lease_version_reliability.features.build_features import (
+from lease_version_reliability.features.build_features import (
     feature_engineering,
 )
 

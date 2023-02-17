@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from src.lease_version_reliability.config.settings import settings
-from src.lease_version_reliability.data.database import (
+from lease_version_reliability.config.settings import settings
+from lease_version_reliability.data.database import (
     CompstakServicesMySQL,
     get_snowflake_connection,
 )

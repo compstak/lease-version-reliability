@@ -3,7 +3,7 @@ import logging
 from databases import Database
 import snowflake.connector
 
-from src.lease_version_reliability.config.settings import settings
+from lease_version_reliability.config.settings import settings
 
 logging.basicConfig(level=logging.INFO)
 
