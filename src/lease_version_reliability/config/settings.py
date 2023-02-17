@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, BaseSettings
 
-from lease_version_reliability.config.attributes import attributes
+from src.lease_version_reliability.config.attributes import attributes
 
 
 class BatchConfig(BaseModel):
@@ -32,19 +32,18 @@ class Settings(BaseSettings):
     QUERY_DIR: str = "src/lease_version_reliability/data/query"
     MODEL_NAME: str = "lease_reliability_clf.pickle"
 
-    SNOWFLAKE_USER: str = ""
-    SNOWFLAKE_PASS: str = ""
-    SNOWFLAKE_ACCOUNT: str = ""
-    SNOWFLAKE_REGION: str = ""
-    SNOWFLAKE_WH: str = ""
-    SNOWFLAKE_DB: str = ""
+    MYSQL_USER: str
+    MYSQL_PASS: str
+    MYSQL_HOST: str
+    MYSQL_PORT: str
+    MYSQL_DB: str
 
-    SNOWFLAKE_ML_USER: str
-    SNOWFLAKE_ML_PASS: str
-    SNOWFLAKE_ML_ROLE: str
-    SNOWFLAKE_ML_ACCOUNT: str
-    SNOWFLAKE_ML_REGION: str
-    SNOWFLAKE_ML_DB: str
+    SNOWFLAKE_USER: str
+    SNOWFLAKE_PASS: str
+    SNOWFLAKE_ROLE: str
+    SNOWFLAKE_ACCOUNT: str
+    SNOWFLAKE_REGION: str
+    SNOWFLAKE_DB: str
 
     AWS_ROLE_ARN: Optional[str] = None
     AWS_WEB_IDENTITY_TOKEN_FILE: Optional[str] = None

@@ -2,11 +2,16 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from lease_version_reliability.common.file_io import download_models, read_model
-from lease_version_reliability.config.settings import settings
-from lease_version_reliability.data.database import CompstakServicesMySQL
-from lease_version_reliability.data.database import cs_mysql_instance as mysql
-from lease_version_reliability.data.database_io import (
+from src.lease_version_reliability.common.file_io import (
+    download_models,
+    read_model,
+)
+from src.lease_version_reliability.config.settings import settings
+from src.lease_version_reliability.data.database import (
+    cs_mysql_instance as mysql,
+)
+from src.lease_version_reliability.data.database import CompstakServicesMySQL
+from src.lease_version_reliability.data.database_io import (
     get_all_data,
     get_column_names,
     get_labels,
@@ -15,11 +20,11 @@ from lease_version_reliability.data.database_io import (
     write_submitter_df_snowflake,
     write_version_realiability_df_snowflake,
 )
-from lease_version_reliability.data.output_data import (
+from src.lease_version_reliability.data.output_data import (
     get_submitter_reliability,
     get_version_reliability,
 )
-from lease_version_reliability.features.build_features import (
+from src.lease_version_reliability.features.build_features import (
     feature_engineering,
 )
 
@@ -34,9 +39,11 @@ async def load_data(
     Retrun datasets after performing feature engineering
     """
     # training data (masters with >3 versions within it)
+    logger.info("Reading Reliable Data from MySQL")
     reliable_data = await get_reliable_data(db)
 
     # all version data needed to export a reliability score
+    logger.info("Reading All Data from MySQL")
     all_data = await get_all_data(db)
 
     attributes = settings.ATTRIBUTES

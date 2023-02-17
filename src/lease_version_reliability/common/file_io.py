@@ -7,7 +7,7 @@ import boto3
 import botocore
 import structlog
 
-from lease_version_reliability.config.settings import settings
+from src.lease_version_reliability.config.settings import settings
 
 logger = structlog.get_logger()
 

@@ -7,10 +7,10 @@ import numpy as np
 import pandas as pd
 import structlog
 
-from lease_version_reliability.config.settings import settings
-from lease_version_reliability.data.database import (
+from src.lease_version_reliability.config.settings import settings
+from src.lease_version_reliability.data.database import (
     CompstakServicesMySQL,
-    get_snowflake_ml_pipeline_connection,
+    get_snowflake_connection,
 )
 
 logger = structlog.get_logger()
@@ -30,7 +30,7 @@ async def get_logo_df(data: pd.DataFrame) -> pd.DataFrame:
     """
     Return logorithm data from Snowflake
     """
-    snowflake_conn = get_snowflake_ml_pipeline_connection()
+    snowflake_conn = get_snowflake_connection()
 
     query = read_file("submission_logo.sql")
     cursor = snowflake_conn.cursor()
@@ -258,7 +258,7 @@ def write_submitter_df_snowflake(
     """
     if not (df.empty):
         logger.info(f"Processing {len(df)}")
-        conn = get_snowflake_ml_pipeline_connection()
+        conn = get_snowflake_connection()
         values = list(
             zip(
                 df["submitter_person_id"].tolist(),
@@ -318,7 +318,7 @@ def write_version_realiability_df_snowflake(
     """
     if not (df.empty):
         logger.info(f"Processing {len(df)}")
-        conn = get_snowflake_ml_pipeline_connection()
+        conn = get_snowflake_connection()
         values = list(
             zip(
                 df["comp_data_id_version"].tolist(),
