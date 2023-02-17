@@ -23,6 +23,9 @@ logger = structlog.get_logger()
 def get_column_names(
     attributes: list[str],
 ) -> tuple[list[str], list[str], list[str]]:
+    """
+    Return correct, filled, and labeled column names for every attribute
+    """
     correct = []
     filled = []
     label = []
@@ -34,6 +37,9 @@ def get_column_names(
 
 
 def get_split_columns(columns: list[str]) -> tuple[list[str], list[str]]:
+    """
+    Split into input and target columns
+    """
     X_cols = []
     y_cols = []
     for col in columns:
@@ -51,6 +57,9 @@ async def train_multioutput_classifiers(
     X_cols: list[str],
     y_cols: list[str],
 ) -> dict[str, RandomForestClassifier()]:
+    """
+    Return training model dictionary
+    """
     model_dict = {}
     logger.info("Get reliable versions by attribute")
     df_reliable_attributes = await get_reliable_data_by_attribute(db)
@@ -95,8 +104,9 @@ async def train_multioutput_classifiers(
 
 
 async def train_model(upload: bool) -> None:
-    """"""
-
+    """
+    Train model and upload into S3
+    """
     logger.info("Connecting to MySQL")
     await mysql.connect()
 

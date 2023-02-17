@@ -9,6 +9,9 @@ def get_submitter_reliability(
     y_cols: Any,
     model_dict: dict[Any, Any],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Calculate reliability score for every submitter
+    """
     submitter_info = df[["submitter_person_id"] + X_cols].drop_duplicates()
     for col in submitter_info:
         if ("logo" in col) and ("submitter" not in col):
@@ -57,6 +60,9 @@ def get_version_reliability(
     y_cols: Any,
     model_dict: dict[Any, Any],
 ) -> pd.DataFrame:
+    """
+    Calculate reliability score for every version
+    """
     val_df = pd.DataFrame()
     val_df["comp_data_id_version"] = data["comp_data_id_version"]
     val_df["comp_data_id_master"] = data["comp_data_id_master"]

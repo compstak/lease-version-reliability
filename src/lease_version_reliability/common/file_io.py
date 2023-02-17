@@ -13,13 +13,17 @@ logger = structlog.get_logger()
 
 
 def save_pickle(obj: Any, file_path: str) -> None:
-    """"""
+    """
+    Save pickle files
+    """
     with open(file_path, "wb") as handle:
         pickle.dump(obj, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def read_pickle(file_path: str) -> Any:
-    """"""
+    """
+    Read pickle files
+    """
     with open(file_path, "rb") as handle:
         obj = pickle.load(handle)
 
@@ -27,7 +31,9 @@ def read_pickle(file_path: str) -> Any:
 
 
 def save_model(obj: Any, filename: str) -> None:
-    """"""
+    """
+    Save training models
+    """
     save_pickle(
         obj,
         "{directory}/{filename}".format(
@@ -38,7 +44,9 @@ def save_model(obj: Any, filename: str) -> None:
 
 
 def read_model(filename: str) -> Any:
-    """"""
+    """
+    Read pickle models
+    """
     model = read_pickle(
         "{directory}/{filename}".format(
             directory=settings.MODEL_DIR,
@@ -121,7 +129,7 @@ def download_models() -> None:
 
 def upload_models() -> None:
     """
-    Upload the model to S3 bucket
+    Upload models to S3 bucket
     """
     object_name = (
         f"lease-version-reliability/models/{settings.ENV}.model.tar.gz"

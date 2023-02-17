@@ -9,6 +9,10 @@ logging.basicConfig(level=logging.INFO)
 
 
 class CompstakServicesMySQL(Database):
+    """
+    Get MySQL connection
+    """
+
     def __init__(self) -> None:
         super().__init__(
             "mysql://{}:{}@{}:{}/{}".format(
@@ -19,6 +23,9 @@ class CompstakServicesMySQL(Database):
                 settings.MYSQL_DB,
             ),
         )
+
+
+cs_mysql_instance = CompstakServicesMySQL()
 
 
 def get_snowflake_ml_pipeline_connection() -> snowflake.connector:
@@ -36,6 +43,3 @@ def get_snowflake_ml_pipeline_connection() -> snowflake.connector:
     )
 
     return connection
-
-
-cs_mysql_instance = CompstakServicesMySQL()

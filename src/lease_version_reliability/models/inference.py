@@ -29,7 +29,10 @@ logger = structlog.get_logger()
 async def load_data(
     db: CompstakServicesMySQL,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """"""
+    """
+    Get reliable data (with more than 3 versions) and all version data
+    Retrun datasets after performing feature engineering
+    """
     # training data (masters with >3 versions within it)
     reliable_data = await get_reliable_data(db)
 
@@ -69,8 +72,10 @@ async def load_data(
 
 
 async def run_inference(download: bool) -> None:
-    """"""
-
+    """
+    Calculate reliability score of submitters and all versions
+    Insert inference into Snowflake
+    """
     logger.info("Connecting to MySQL")
     await mysql.connect()
     if download:
