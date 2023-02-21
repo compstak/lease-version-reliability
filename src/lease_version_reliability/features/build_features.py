@@ -100,7 +100,7 @@ def get_rate_features(
     attributes: dict[Any, Any],
 ) -> pd.DataFrame:
     """
-    Functinon to take count features (correct submissions, total submissions,
+    Function to take count features (correct submissions, total submissions,
     and filled submissions) and convert them into a rate.
     i.e. Fill rate = number submissions filled / total number of submissions
     """
@@ -141,7 +141,7 @@ def feature_engineering(
     attributes: Any,
 ) -> pd.DataFrame:
     """
-    Get combined submitter and brokerage logo based features by version
+    Get combined submitter and brokerage logo based features by version.
     """
     df_submitter_features = get_features_by_entity(
         data,
