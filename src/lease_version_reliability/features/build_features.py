@@ -10,6 +10,10 @@ def get_features_by_entity(
     label: list[Any],
     fill: list[Any],
 ) -> pd.DataFrame:
+    """
+    Processes all data, grouped by name (submiitter or brokerage logo).
+    Calculated correct submissions, total submissions, and filled submissions.
+    """
     df_metrics = pd.DataFrame()
     ids = list(data[name].unique())
     if np.NaN in ids:
@@ -73,6 +77,9 @@ def combine_features(
     correct: list[Any],
     filled: list[Any],
 ) -> pd.DataFrame:
+    """
+    Function to merge data with features by name (submitter or brokerage logo)
+    """
     df = data.merge(agg_data, how=how)
 
     for c in correct:
@@ -92,6 +99,11 @@ def get_rate_features(
     data: pd.DataFrame,
     attributes: dict[Any, Any],
 ) -> pd.DataFrame:
+    """
+    Functinon to take count features (correct submissions, total submissions,
+    and filled submissions) and convert them into a rate.
+    i.e. Fill rate = number submissions filled / total number of submissions
+    """
     df = data
     for att in attributes:
         df[f"{att}_submitter_correct_rate"] = np.where(
@@ -128,6 +140,9 @@ def feature_engineering(
     col_names_correct: Any,
     attributes: Any,
 ) -> pd.DataFrame:
+    """
+    Get combined submitter and brokerage logo based features by version
+    """
     df_submitter_features = get_features_by_entity(
         data,
         "submitter_person_id",
