@@ -136,6 +136,8 @@ async def train_model(upload: bool) -> None:
     x_cols, y_cols = get_split_columns(df.columns)
     model_dict = await train_multioutput_classifiers(mysql, df, x_cols, y_cols)
 
+    await mysql.disconnect()
+
     logger.info("Saving Models")
     save_model(model_dict, settings.TRAIN_CONFIG.MODEL_FILENAME)
 

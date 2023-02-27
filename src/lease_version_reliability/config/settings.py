@@ -9,7 +9,7 @@ from lease_version_reliability.config.attributes import attributes
 class BatchConfig(BaseModel):
     """Application configurations."""
 
-    BATCH_SIZE: int = 10
+    BATCH_SIZE: int = 10000
 
 
 class TrainConfig(BaseModel):
@@ -26,11 +26,12 @@ class Settings(BaseSettings):
 
     ATTRIBUTES: list[str] = attributes
 
-    DATA_RAW_DIR: str = "data/raw"
-    DATA_DIR: str = "data/processed"
+    # DATA_RAW_DIR: str = "data/raw"
+    # DATA_DIR: str = "data/processed"
     MODEL_DIR: str = "models"
-    QUERY_DIR: str = "src/lease_version_reliability/data/query"
-    MODEL_NAME: str = "lease_reliability_clf.pickle"
+    SQL_QUERY: str = "lease_version_reliability.data.query"
+    # MODEL_NAME: str = "lease_reliability_clf.pickle"
+    SNOWFLAKE_SCHEMA: str = "LEASE_VERSION_RELIABILITY"
 
     MYSQL_USER: str
     MYSQL_PASS: str

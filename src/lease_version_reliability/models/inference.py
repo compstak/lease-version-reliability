@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import structlog
 
@@ -12,8 +11,9 @@ from lease_version_reliability.data.database_io import (
     get_labels,
     get_reliable_data,
     get_split_columns,
-    write_submitter_df_snowflake,
-    write_version_realiability_df_snowflake,
+    modify_submitter_df,
+    modify_version_df,
+    write_into_snowflake,
 )
 from lease_version_reliability.data.output_data import (
     get_submitter_reliability,
@@ -101,28 +101,24 @@ async def run_inference(download: bool) -> None:
         model_dict,
     )
 
+    submitter_df = modify_submitter_df(submitter_df)
+    version_reliability_df = modify_version_df(version_reliability_df)
+
     logger.info("Exporting <SUBMITTER RELIABILITY> into Snowflake")
-    write_submitter_df_snowflake(
+    write_into_snowflake(
         submitter_df,
-        "ML_PIPELINE_DEV_DB.LEASE_VERSION_RELIABILITY",
-        "SUBMITTER",
+        "LEASE_VERSION_RELIABILITY",
+        "submitter",
     )
 
     logger.info("Exporting <VERSION RELIABILITY> into Snowflake")
     logger.info(f"Total len of {len(version_reliability_df)}")
 
-    for i, chunk in enumerate(
-        np.array_split(
-            version_reliability_df,
-            settings.BATCH_CONFIG.BATCH_SIZE,
-        ),
-    ):
-        logger.info(f"processing batch: {i + 1}/10")
-        write_version_realiability_df_snowflake(
-            chunk,
-            "ML_PIPELINE_DEV_DB.LEASE_VERSION_RELIABILITY",
-            "VERSION",
-        )
+    write_into_snowflake(
+        version_reliability_df,
+        "LEASE_VERSION_RELIABILITY",
+        "version",
+    )
 
     logger.info(submitter_df.head())
     logger.info(version_reliability_df.head())

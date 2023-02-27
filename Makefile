@@ -1,4 +1,4 @@
-ENV=dev
+ENV=stage
 VERSION=3.9.10
 
 SHELL:=/bin/bash

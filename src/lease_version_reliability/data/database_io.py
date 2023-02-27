@@ -1,10 +1,13 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
+from importlib import resources
 import typing
 
 import dateutil.parser as parser
 import jellyfish
 import numpy as np
 import pandas as pd
+from snowflake.connector.pandas_tools import pd_writer
+from sqlalchemy import create_engine
 import structlog
 
 from lease_version_reliability.config.settings import settings
@@ -16,11 +19,11 @@ from lease_version_reliability.data.database import (
 logger = structlog.get_logger()
 
 
-def read_file(path: str) -> str:
+def read_file(package: str, filename: str) -> str:
     """
-    Read query file.
+    Read file.
     """
-    with open(f"{settings.QUERY_DIR}/{path}") as fd:
+    with resources.open_text(package, filename) as fd:
         query = fd.read()
 
     return query
@@ -32,7 +35,7 @@ async def get_logo_df(data: pd.DataFrame) -> pd.DataFrame:
     """
     snowflake_conn = get_snowflake_connection()
 
-    query = read_file("submission_logo.sql")
+    query = read_file(settings.SQL_QUERY, "submission_logo.sql")
     cursor = snowflake_conn.cursor()
     cursor.execute(query)
     logo_data = cursor.fetch_pandas_all()
@@ -53,7 +56,7 @@ async def get_reliable_data(db: CompstakServicesMySQL) -> pd.DataFrame:
     """
     Return reliable data (more than 3 submitted versions) from MySQL
     """
-    query = read_file("reliable_data.sql")
+    query = read_file(settings.SQL_QUERY, "reliable_data.sql")
     data = [dict(item) for item in await db.fetch_all(query)]
     data = pd.DataFrame(data)
 
@@ -66,7 +69,7 @@ async def get_all_data(db: CompstakServicesMySQL) -> pd.DataFrame:
     """
     Return all versions from MySQL
     """
-    query = read_file("all_data.sql")
+    query = read_file(settings.SQL_QUERY, "all_data.sql")
     data = [dict(item) for item in await db.fetch_all(query)]
     data = pd.DataFrame(data)
 
@@ -81,7 +84,7 @@ async def get_reliable_data_by_attribute(
     """
     Get count of each attribute in reliable data
     """
-    query = read_file("reliable_data_by_attribute.sql")
+    query = read_file(settings.SQL_QUERY, "reliable_data_by_attribute.sql")
     data = [dict(item) for item in await db.fetch_all(query)]
     data = pd.DataFrame(data)
     return data
@@ -248,123 +251,78 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
     return data
 
 
-def write_submitter_df_snowflake(
+def modify_submitter_df(df: pd.DataFrame):
+    """
+    Change column names for submitter df
+    to match column names in Snowflake
+    """
+    col = settings.ATTRIBUTES.copy()
+    col_reliability = [s + "_reliability" for s in col]
+
+    col.insert(0, "submitter_person_id")
+    col_reliability.insert(0, "submitter_person_id")
+
+    col.insert(len(col), "general_reliability")
+    col_reliability.insert(len(col), "general_reliability")
+
+    df = df[col_reliability]
+    df = df.set_axis(col, axis=1)
+
+    df["date_created"] = pd.Timestamp.now()
+    df["date_created"] = df["date_created"].dt.strftime("%Y-%m-%d %X")
+    df.columns = map(lambda x: str(x).upper(), df.columns)
+
+    return df
+
+
+def modify_version_df(df: pd.DataFrame):
+    """
+    Change column names for version df
+    to match column names in Snowflake
+    """
+    col = settings.ATTRIBUTES.copy()
+    col_reliability = [s + "_prob" for s in col]
+
+    col.insert(0, "comp_data_id_version")
+    col_reliability.insert(0, "comp_data_id_version")
+
+    df = df[col_reliability]
+    df = df.set_axis(col, axis=1)
+
+    df["date_created"] = pd.Timestamp.now()
+    df["date_created"] = df["date_created"].dt.strftime("%Y-%m-%d %X")
+    df.columns = map(lambda x: str(x).upper(), df.columns)
+
+    return df
+
+
+def write_into_snowflake(
     df: pd.DataFrame,
     schema: str,
     table: str,
 ) -> None:
     """
-    Insert submitter-reliability table into Snowflake
+    Insert table into Snowflake
     """
     if not (df.empty):
         logger.info(f"Processing {len(df)}")
         conn = get_snowflake_connection()
-        values = list(
-            zip(
-                df["submitter_person_id"].tolist(),
-                df["tenant_name_reliability"],
-                df["space_type_id_reliability"],
-                df["transaction_size_reliability"].tolist(),
-                df["starting_rent_reliability"].tolist(),
-                df["execution_date_reliability"].tolist(),
-                df["commencement_date_reliability"].tolist(),
-                df["lease_term_reliability"].tolist(),
-                df["expiration_date_reliability"].tolist(),
-                df["work_value_reliability"].tolist(),
-                df["free_months_reliability"].tolist(),
-                df["transaction_type_id_reliability"].tolist(),
-                df["rent_bumps_percent_bumps_reliability"].tolist(),
-                df["rent_bumps_dollar_bumps_reliability"].tolist(),
-                df["lease_type_id_reliability"].tolist(),
-                df["general_reliability"].tolist(),
-                [datetime.now() for _ in range(len(df))],
-            ),
+        engine = create_engine(
+            f"snowflake://{settings.SNOWFLAKE_ACCOUNT}."
+            f"{settings.SNOWFLAKE_REGION}."
+            f"snowflakecomputing.com",
+            creator=lambda: conn,
         )
-
-        try:
-            cur = conn.cursor()
-            temp_table_query = read_file("submitter_df.sql").format(
-                schema,
-            )
-            insert_query = read_file("insert_submitter_df.sql").format(
-                schema,
-            )
-
-            merge_query = read_file("merge_submitter_df.sql").format(
-                schema=schema,
-                table=table,
-            )
-
-            cur.execute(temp_table_query)
-            cur.executemany(insert_query, values)
-            cur.execute(merge_query)
-
-        except Exception as e:
-            logger.error(e)
-
-        finally:
-            cur.close()
-            conn.commit()
-            logger.info("done")
-
-
-def write_version_realiability_df_snowflake(
-    df: pd.DataFrame,
-    schema: str,
-    table: str,
-) -> None:
-    """
-    Insert version-reliability table into Snowflake
-    """
-    if not (df.empty):
-        logger.info(f"Processing {len(df)}")
-        conn = get_snowflake_connection()
-        values = list(
-            zip(
-                df["comp_data_id_version"].tolist(),
-                df["tenant_name_prob"].tolist(),
-                df["space_type_id_prob"].tolist(),
-                df["transaction_size_prob"].tolist(),
-                df["starting_rent_prob"].tolist(),
-                df["execution_date_prob"].tolist(),
-                df["commencement_date_prob"].tolist(),
-                df["lease_term_prob"].tolist(),
-                df["expiration_date_prob"].tolist(),
-                df["work_value_prob"].tolist(),
-                df["free_months_prob"].tolist(),
-                df["transaction_type_id_prob"].tolist(),
-                df["rent_bumps_percent_bumps_prob"].tolist(),
-                df["rent_bumps_dollar_bumps_prob"].tolist(),
-                df["lease_type_id_prob"].tolist(),
-                [datetime.now() for _ in range(len(df))],
-            ),
+    with engine.connect():
+        df.to_sql(
+            table,
+            engine,
+            schema=schema,
+            index=False,
+            if_exists="append",
+            chunksize=settings.BATCH_CONFIG.BATCH_SIZE,
+            method=pd_writer,
         )
-
-        try:
-            cur = conn.cursor()
-            temp_table_query = read_file("version_df.sql").format(
-                schema,
-            )
-            insert_query = read_file("insert_version_df.sql").format(
-                schema,
-            )
-
-            merge_query = read_file("merge_version_df.sql").format(
-                schema=schema,
-                table=table,
-            )
-
-            cur.execute(temp_table_query)
-            cur.executemany(insert_query, values)
-            cur.execute(merge_query)
-
-        except Exception as e:
-            logger.error(e)
-
-        finally:
-            cur.close()
-            conn.commit()
-            logger.info("done")
 
 
 def get_column_names(attributes: typing.Any) -> typing.Any:

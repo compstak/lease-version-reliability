@@ -106,6 +106,7 @@ def download_models() -> None:
     """
     Get models from S3 bucket
     """
+
     s3 = get_s3_resource()
     object_name = (
         f"lease-version-reliability/models/{settings.ENV}.model.tar.gz"
