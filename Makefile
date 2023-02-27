@@ -1,13 +1,13 @@
-PROJECT=lease-version-reliability
+ENV=stage
 VERSION=3.9.10
-ENV=local
 
 SHELL:=/bin/bash
-VENV=${PROJECT}-${VERSION}
+VENV=${PROJECT}-py${VERSION}
 VENV_DIR=$(shell pyenv root)/versions/${VENV}
 PYTHON=${VENV_DIR}/bin/python
 JUPYTER_ENV_NAME=${VENV}
 JUPYTER_PORT=8888
+PROJECT=$(shell basename $(CURDIR))
 BUCKET=compstak-machine-learning
 
 DEFAULT_GOAL: help
@@ -33,37 +33,33 @@ HELP_FUN = \
 
 help: ##@other >> Show this help.
 	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
-	@echo ""
-	@echo "Note: to activate the environment in your local shell type:"
-	@echo "   $$ pyenv activate $(VENV)"
 
-build: ##@build >> build the virtual environment with an ipykernel for jupyter and install requirements
+build: ##@build >> build the virtual environment with an ipykernel and install requirements
 	@echo ""
 	@echo "$(ccso)--> Build $(ccend)"
 	$(MAKE) venv
 	$(MAKE) install
+	$(MAKE) pre-commit
 	$(MAKE) ipykernel
 
-venv: $(VENV_DIR) ##@build >> setup the virtual environment
-
-$(VENV_DIR):
+venv: ##@build >> setup the virtual environment
 	@echo "$(ccso)--> Install and setup pyenv and virtualenv $(ccend)"
-	python3 -m pip install --upgrade pip
-	pyenv virtualenv ${VENV}
+	pyenv virtualenv -f ${VERSION} ${VENV}
+	pyenv local ${VENV}
 	echo ${VENV} > .python-version
 
-install: venv requirements-dev.txt ##@build >> update requirements-dev.txt inside the virtual environment
+install: ##@build >> update requirements-dev.txt inside the virtual environment
 	@echo "$(ccso)--> Updating packages $(ccend)"
-	$(PYTHON) -m pip install --upgrade pip
-	$(PYTHON) -m pip install -r requirements-dev.txt
-	$(PYTHON) -m pip install pre-commit
+	poetry lock
+	poetry install --with=dev,lint,fmt,type_check,jupyter --sync
+
+pre-commit: ##@build >> install pre-commit and update pre-commit hooks
 	pre-commit install
 	pre-commit autoupdate
 
 ipykernel: venv ##@build >> install a Jupyter iPython kernel using our virtual environment
 	@echo ""
 	@echo "$(ccso)--> Install ipykernel to be used by jupyter notebooks $(ccend)"
-	$(PYTHON) -m pip install ipykernel jupyter jupyter_contrib_nbextensions
 	$(PYTHON) -m ipykernel install \
 					--user \
 					--name=$(VENV) \
@@ -82,7 +78,7 @@ jupyter: venv ##@tool >> start a jupyter notebook
 	jupyter notebook --port $(JUPYTER_PORT)
 
 pytest: ##@tool >> run pytest
-	$(PYTHON) -m pytest tests/test.py -s
+	$(PYTHON) -m pytest -s
 
 check-all: ##@tool >> perform pre-commit checks
 	pre-commit run --all-files
