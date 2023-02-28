@@ -19,19 +19,15 @@ class TrainConfig(BaseModel):
 
 
 class Settings(BaseSettings):
-    ENV: str = "dev"
+    ENV: str = "stage"
     PROJECT_NAME: str = "lease-version-reliability"
     BATCH_CONFIG: BatchConfig = BatchConfig()
     TRAIN_CONFIG: TrainConfig = TrainConfig()
 
     ATTRIBUTES: list[str] = attributes
 
-    # DATA_RAW_DIR: str = "data/raw"
-    # DATA_DIR: str = "data/processed"
     MODEL_DIR: str = "models"
     SQL_QUERY: str = "lease_version_reliability.data.query"
-    # MODEL_NAME: str = "lease_reliability_clf.pickle"
-    SNOWFLAKE_SCHEMA: str = "LEASE_VERSION_RELIABILITY"
 
     MYSQL_USER: str
     MYSQL_PASS: str
