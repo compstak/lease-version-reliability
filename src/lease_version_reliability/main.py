@@ -26,7 +26,7 @@ def train(
     model: bool = Option(False, help="Upload model."),
 ) -> None:
     """Run training script"""
-    logger.info("Training inference model.")
+    logger.info("Start training inference model.")
 
     async def _train(model: bool) -> None:
         await train_model(model)
@@ -39,7 +39,7 @@ def inference(
     model: bool = Option(False, help="Download model."),
 ) -> None:
     """Run inference script"""
-    logger.info("Calculating inference.")
+    logger.info("Start Calculating inference.")
 
     async def _inference(model: bool) -> None:
         await run_inference(model)
