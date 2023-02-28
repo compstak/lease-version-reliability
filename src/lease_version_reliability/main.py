@@ -39,7 +39,7 @@ def inference(
     model: bool = Option(False, help="Download model."),
 ) -> None:
     """Run inference script"""
-    logger.info("Start Calculating inference.")
+    logger.info("Start calculating inference.")
 
     async def _inference(model: bool) -> None:
         await run_inference(model)
