@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 import structlog
 
@@ -24,6 +26,7 @@ from lease_version_reliability.features.build_features import (
 )
 
 logger = structlog.get_logger()
+logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
 
 async def load_data(
@@ -35,11 +38,11 @@ async def load_data(
     """
     # training data (masters with >3 versions within it)
     logger.info("Reading Reliable Data from MySQL")
-    reliable_data = await get_reliable_data(db)
+    reliable_data = await get_reliable_data()
 
     # all version data needed to export a reliability score
     logger.info("Reading All Data from MySQL")
-    all_data = await get_all_data(db)
+    all_data = await get_all_data()
 
     attributes = settings.ATTRIBUTES
 

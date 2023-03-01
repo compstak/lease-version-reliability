@@ -56,3 +56,6 @@ LEFT JOIN comp_batch cb
     ON cp.comp_batch_id = cb.id
 LEFT JOIN submission s
     ON cb.submission_id = s.id
+WHERE cv.id > {min}
+AND cv.id <= {max}
+ORDER BY cv.id;

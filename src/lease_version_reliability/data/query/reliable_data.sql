@@ -66,3 +66,6 @@ WHERE cm.id IN
     HAVING
     COUNT(1) >= 3
 )
+AND cv.id > {min}
+AND cv.id <= {max}
+ORDER BY cv.id;

@@ -11,10 +11,9 @@ from sqlalchemy import create_engine
 import structlog
 
 from lease_version_reliability.config.settings import settings
-from lease_version_reliability.data.database import (
-    CompstakServicesMySQL,
-    get_snowflake_connection,
-)
+from lease_version_reliability.data.database import CompstakServicesMySQL
+from lease_version_reliability.data.database import cs_mysql_instance as mysql
+from lease_version_reliability.data.database import get_snowflake_connection
 
 logger = structlog.get_logger()
 
@@ -52,30 +51,91 @@ async def get_logo_df(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-async def get_reliable_data(db: CompstakServicesMySQL) -> pd.DataFrame:
+async def get_version_max_id(db: CompstakServicesMySQL) -> typing.Any:
     """
-    Return reliable data (more than 3 submitted versions) from MySQL
+    Retrun max id of comp_version table
     """
-    query = read_file(settings.SQL_QUERY, "reliable_data.sql")
+
+    query = read_file(settings.SQL_QUERY, "version_max_id.sql")
+
+    return await db.fetch_val(query)
+
+
+async def batch_reliable_data(
+    db: CompstakServicesMySQL,
+    min: int,
+    max: int,
+) -> pd.DataFrame:
+    """
+    Batch process reliable data (more than 3 submitted versions) from MySQL
+    """
+    query = read_file(settings.SQL_QUERY, "reliable_data.sql").format(
+        min=min,
+        max=max,
+    )
     data = [dict(item) for item in await db.fetch_all(query)]
-    data = pd.DataFrame(data)
 
-    data = await get_logo_df(data)
-
-    return data
+    return pd.DataFrame(data)
 
 
-async def get_all_data(db: CompstakServicesMySQL) -> pd.DataFrame:
+async def batch_all_data(
+    db: CompstakServicesMySQL,
+    min: int,
+    max: int,
+) -> pd.DataFrame:
     """
-    Return all versions from MySQL
+    Batch process all versions data from MySQL
     """
-    query = read_file(settings.SQL_QUERY, "all_data.sql")
+    query = read_file(settings.SQL_QUERY, "all_data.sql").format(
+        min=min,
+        max=max,
+    )
     data = [dict(item) for item in await db.fetch_all(query)]
-    data = pd.DataFrame(data)
 
-    data = await get_logo_df(data)
+    return pd.DataFrame(data)
 
-    return data
+
+async def get_reliable_data() -> pd.DataFrame:
+    """
+    Return reliable data (more than 3 submitted versions) and logorithm data
+    """
+    id = await get_version_max_id(mysql)
+    logger.info("Get reliable data and logorithm data")
+    df = pd.DataFrame()
+    for i in range(0, id, settings.BATCH_CONFIG.BATCH_SIZE):
+        logger.info(f"Processing {i + settings.BATCH_CONFIG.BATCH_SIZE}/{id}")
+        data = await batch_reliable_data(
+            mysql,
+            i,
+            i + settings.BATCH_CONFIG.BATCH_SIZE,
+        )
+        df = pd.concat([df, data], ignore_index=True)
+
+    df = await get_logo_df(df)
+
+    return df
+
+
+async def get_all_data() -> pd.DataFrame:
+    """
+    Return all versions and logorithm data
+    """
+
+    id = await get_version_max_id(mysql)
+    logger.info("Get all versions and logorithm data")
+    df = pd.DataFrame()
+    for i in range(0, id, settings.BATCH_CONFIG.BATCH_SIZE):
+        logger.info(f"Processing {i + settings.BATCH_CONFIG.BATCH_SIZE}/{id}")
+        data = await batch_all_data(
+            mysql,
+            i,
+            i + settings.BATCH_CONFIG.BATCH_SIZE,
+        )
+        df = pd.concat([df, data], ignore_index=True)
+
+    df = await get_logo_df(df)
+
+    return df
 
 
 async def get_reliable_data_by_attribute(
@@ -251,6 +311,37 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
     return data
 
 
+def get_column_names(attributes: typing.Any) -> typing.Any:
+    """
+    Retrun correct, filled, and label columns for each attribute
+    """
+    correct = []
+    filled = []
+    label = []
+    for att in attributes:
+        correct.append(f"{att}_correct")
+        filled.append(f"{att}_filled")
+        label.append(f"{att}_label")
+    return correct, filled, label
+
+
+def get_split_columns(
+    columns: typing.Any,
+) -> typing.Any:
+    """
+    Split into input and target columns
+    """
+    X_cols = []
+    y_cols = []
+    for col in columns:
+        if col.endswith("count") or col.endswith("rate"):
+            X_cols.append(col)
+        elif col.endswith("label"):
+            y_cols.append(col)
+
+    return X_cols, y_cols
+
+
 def modify_submitter_df(df: pd.DataFrame):
     """
     Change column names for submitter df
@@ -323,34 +414,3 @@ def write_into_snowflake(
             chunksize=settings.BATCH_CONFIG.BATCH_SIZE,
             method=pd_writer,
         )
-
-
-def get_column_names(attributes: typing.Any) -> typing.Any:
-    """
-    Retrun correct, filled, and label columns for each attribute
-    """
-    correct = []
-    filled = []
-    label = []
-    for att in attributes:
-        correct.append(f"{att}_correct")
-        filled.append(f"{att}_filled")
-        label.append(f"{att}_label")
-    return correct, filled, label
-
-
-def get_split_columns(
-    columns: typing.Any,
-) -> typing.Any:
-    """
-    Split into input and target columns
-    """
-    X_cols = []
-    y_cols = []
-    for col in columns:
-        if col.endswith("count") or col.endswith("rate"):
-            X_cols.append(col)
-        elif col.endswith("label"):
-            y_cols.append(col)
-
-    return X_cols, y_cols
