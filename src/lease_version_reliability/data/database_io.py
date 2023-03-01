@@ -150,18 +150,23 @@ async def get_reliable_data_by_attribute(
 
 
 def label_strict_equality(
-    subject: str,
-    target: str,
+    data: pd.DataFrame,
+    att: str,
 ) -> float:
     """
     Replace attribute columns with indicator values
     Based on strict equality for masters and versions
     """
-    if pd.isnull(subject) or pd.isnull(target):
-        return -1
-    if subject == target:
-        return 1
-    return 0
+    idx_null = np.where(
+        (data[att + "_version"].isnull()) | (data[att + "_master"].isnull()),
+    )[0]
+    idx_equality = np.where(data[att + "_version"] == data[att + "_master"])[0]
+
+    data[att + "_label"] = 0
+    data.loc[idx_null, att + "_label"] = -1
+    data.loc[idx_equality, att + "_label"] = 1
+
+    return data
 
 
 def label_tenant_name(
@@ -183,25 +188,33 @@ def label_tenant_name(
 
 
 def label_transaction_size(
-    subject: float,
-    target: float,
+    data: pd.DataFrame,
+    att: str,
 ) -> float:
     """
     Replace transaction_size attribute column with indicator values
     Given size threshold for masters and versions
     """
-    if pd.isnull(subject) or pd.isnull(target):
-        return -1
-    if subject >= target * 0.95 and subject <= target * 1.05:
-        return 1
-    return 0
+    idx_null = np.where(
+        (data[att + "_version"].isnull()) | (data[att + "_master"].isnull()),
+    )[0]
+    idx_transaction_size = np.where(
+        (data[att + "_version"] >= 0.95 * data[att + "_master"])
+        & (data[att + "_version"] <= 1.05 * data[att + "_master"]),
+    )[0]
+
+    data[att + "_label"] = 0
+    data.loc[idx_null, att + "_label"] = -1
+    data.loc[idx_transaction_size, att + "_label"] = 1
+
+    return data
 
 
 def label_date(data, att):
     idx_null = np.where(
         (data[att + "_version"].isnull()) | (data[att + "_master"].isnull()),
     )[0]
-    idx_execution_date = np.where(
+    idx_date = np.where(
         (data[att + "_version"] <= data[att + "_master"] + timedelta(days=90))
         & (
             data[att + "_version"] >= data[att + "_master"] - timedelta(days=90)
@@ -210,24 +223,32 @@ def label_date(data, att):
 
     data[att + "_label"] = 0
     data.loc[idx_null, att + "_label"] = -1
-    data.loc[idx_execution_date, att + "_label"] = 1
+    data.loc[idx_date, att + "_label"] = 1
 
     return data
 
 
 def label_lease_term(
-    subject: float,
-    target: float,
+    data: pd.DataFrame,
+    att: str,
 ) -> float:
     """
     Replace lease_term attribute column with indicator values
     Given term threshold for masters and versions
     """
-    if pd.isnull(subject) or pd.isnull(target):
-        return -1
-    if subject >= target * 0.92 and subject <= target * 1.08:
-        return 1
-    return 0
+    idx_null = np.where(
+        (data[att + "_version"].isnull()) | (data[att + "_master"].isnull()),
+    )[0]
+    idx_equality = np.where(
+        (data[att + "_version"] >= 0.92 * data[att + "_master"])
+        & (data[att + "_version"] <= 1.08 * data[att + "_master"]),
+    )[0]
+
+    data[att + "_label"] = 0
+    data.loc[idx_null, att + "_label"] = -1
+    data.loc[idx_equality, att + "_label"] = 1
+
+    return data
 
 
 attribute_to_label_dict = {
@@ -260,14 +281,7 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
             0,
         )
 
-        if (
-            (att == "execution_date")
-            | (att == "commencement_date")
-            | (att == "expiration_date")
-        ):
-            data = label_date(data, att)
-
-        else:
+        if att == "tenant_name":
             data[att + "_label"] = data.apply(
                 lambda x: attribute_to_label_dict[att](
                     x[att + "_version"],
@@ -275,6 +289,9 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
                 ),
                 axis=1,
             )
+
+        else:
+            data = attribute_to_label_dict[att](data, att)
 
     return data
 
