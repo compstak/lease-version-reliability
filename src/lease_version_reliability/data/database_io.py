@@ -2,7 +2,6 @@ from datetime import timedelta
 from importlib import resources
 import typing
 
-import dateutil.parser as parser
 import jellyfish
 import numpy as np
 import pandas as pd
@@ -198,61 +197,22 @@ def label_transaction_size(
     return 0
 
 
-def label_execution_date(
-    subject: str,
-    target: str,
-) -> float:
-    """
-    Replace execution_date attribute column with indicator values
-    Given date threshold for masters and versions
-    """
-    if pd.isnull(subject) or pd.isnull(target):
-        return -1
-    subject = str(subject)
-    target = str(target)
-    if parser.parse(subject) <= parser.parse(target) + timedelta(
-        days=90,
-    ) and parser.parse(subject) >= parser.parse(target) - timedelta(days=90):
-        return 1
-    return 0
+def label_date(data, att):
+    idx_null = np.where(
+        (data[att + "_version"].isnull()) | (data[att + "_master"].isnull()),
+    )[0]
+    idx_execution_date = np.where(
+        (data[att + "_version"] <= data[att + "_master"] + timedelta(days=90))
+        & (
+            data[att + "_version"] >= data[att + "_master"] - timedelta(days=90)
+        ),
+    )[0]
 
+    data[att + "_label"] = 0
+    data.loc[idx_null, att + "_label"] = -1
+    data.loc[idx_execution_date, att + "_label"] = 1
 
-def label_commencement_date(
-    subject: str,
-    target: str,
-) -> float:
-    """
-    Replace commencement_date attribute column with indicator values
-    Given date threshold for masters and versions
-    """
-    if pd.isnull(subject) or pd.isnull(target):
-        return -1
-    subject = str(subject)
-    target = str(target)
-    if parser.parse(subject) <= parser.parse(target) + timedelta(
-        days=90,
-    ) and parser.parse(subject) >= parser.parse(target) - timedelta(days=90):
-        return 1
-    return 0
-
-
-def label_expiration_date(
-    subject: typing.Any,
-    target: typing.Any,
-) -> typing.Any:
-    """
-    Replace expiration_date attribute column with indicator values
-    Given date threshold for masters and versions
-    """
-    if pd.isnull(subject) or pd.isnull(target):
-        return -1
-    subject = str(subject)
-    target = str(target)
-    if parser.parse(subject) <= parser.parse(target) + timedelta(
-        days=90,
-    ) and parser.parse(subject) >= parser.parse(target) - timedelta(days=90):
-        return 1
-    return 0
+    return data
 
 
 def label_lease_term(
@@ -275,10 +235,10 @@ attribute_to_label_dict = {
     "space_type_id": label_strict_equality,
     "transaction_size": label_transaction_size,
     "starting_rent": label_strict_equality,
-    "execution_date": label_execution_date,
-    "commencement_date": label_commencement_date,
+    "execution_date": label_date,
+    "commencement_date": label_date,
     "lease_term": label_lease_term,
-    "expiration_date": label_expiration_date,
+    "expiration_date": label_date,
     "work_value": label_strict_equality,
     "free_months": label_strict_equality,
     "transaction_type_id": label_strict_equality,
@@ -300,13 +260,21 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
             0,
         )
 
-        data[att + "_label"] = data.apply(
-            lambda x: attribute_to_label_dict[att](
-                x[att + "_version"],
-                x[att + "_master"],
-            ),
-            axis=1,
-        )
+        if (
+            (att == "execution_date")
+            | (att == "commencement_date")
+            | (att == "expiration_date")
+        ):
+            data = label_date(data, att)
+
+        else:
+            data[att + "_label"] = data.apply(
+                lambda x: attribute_to_label_dict[att](
+                    x[att + "_version"],
+                    x[att + "_master"],
+                ),
+                axis=1,
+            )
 
     return data
 
