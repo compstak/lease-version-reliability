@@ -191,6 +191,9 @@ def feature_engineering(
     )
 
     logger.info("Merging data with features by submitter id")
+
+    logger.info(str(data.columns))
+    logger.info(str(df_submitter_features.columns))
     df = combine_features(
         data,
         df_submitter_features,
@@ -200,7 +203,8 @@ def feature_engineering(
         col_names_filled,
     )
     logger.info(str(df.columns))
-    logger.info(str(df.df_logo_features))
+    logger.info(str(df_logo_features.columns))
+
     df = combine_features(
         df,
         df_logo_features,
