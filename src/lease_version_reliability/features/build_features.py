@@ -210,6 +210,11 @@ def feature_engineering(
         col_names_label,
         col_names_filled,
     )
+    logger.info(df.logo.value_counts())
+    logger.info(df.logo.isnull().sum())
+    logger.info(df_logo_features.logo.value_counts())
+    logger.info(df_logo_features.logo.isnull().sum())
+
     df = combine_features(
         df,
         df_logo_features,
