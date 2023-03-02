@@ -126,6 +126,7 @@ def combine_features(
         df[col_filled] = (df[f"{f}_{name}"] - df[f"{f}"]).astype(int)
         cols_added.append(col_filled)
 
+    df = df.drop([])
     df[cols_added] = df[cols_added].fillna(value=0)
 
     return df
@@ -179,26 +180,13 @@ def feature_engineering(
     """
     Get combined submitter and brokerage logo based features by version.
     """
-    logger.info("Calculating submissions feature for SUBMITTER")
+    logger.info("Combine logo features")
     df_submitter_features = get_features_by_entity(
         data,
         "submitter_person_id",
         col_names_label,
         col_names_filled,
     )
-
-    logger.info("Calculating submission features BROKERAGE LOGO")
-    df_logo_features = get_features_by_entity(
-        data,
-        "logo",
-        col_names_label,
-        col_names_filled,
-    )
-
-    logger.info("Merging data with features by submitter id")
-
-    logger.info(str(data.columns))
-    logger.info(str(df_submitter_features.columns))
 
     df = combine_features(
         data,
@@ -211,6 +199,17 @@ def feature_engineering(
         "submitter_person_id",
     )
 
+    del data
+    del (df_submitter_features,)
+    gc.collect()
+
+    logger.info("Combine brokerage features")
+    df_logo_features = get_features_by_entity(
+        df,
+        "logo",
+        col_names_label,
+        col_names_filled,
+    )
     df = combine_features(
         df,
         df_logo_features,
@@ -221,6 +220,10 @@ def feature_engineering(
         "logo",
         "logo",
     )
+
+    del df_logo_features
+    gc.collect()
+
     logger.info("Converting features into rate")
     df = get_rate_features(df, attributes)
 
