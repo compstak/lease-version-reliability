@@ -93,9 +93,15 @@ def combine_features(
     """
     Function to merge data with features by name (submitter or brokerage logo)
     """
+    logger.info("merge start")
+    logger.info(data)
+    logger.info(agg_data)
+    logger.info(data.isnull().sum())
     df = data.merge(agg_data, how=how)
+    logger.info("merge done")
 
     for c in correct:
+        logger.info(c)
         replace_total = c.replace("correct", "total")
         replace_label = c.replace("correct", "label")
 
