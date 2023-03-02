@@ -24,7 +24,7 @@ def get_features_by_entity(
     df_metrics[name] = ids
 
     for col in label:
-        temp1 = data[[name, col]]
+        temp1 = data[[name, col]].copy()
         temp1[col] = data[col].replace(-1, 0)
 
         s_correct = (
@@ -43,7 +43,7 @@ def get_features_by_entity(
         del s_correct
         del temp1
 
-        temp2 = data[[name, col]]
+        temp2 = data[[name, col]].copy()
         temp2[col] = data[col].replace([-1, 0], [1, 1])
 
         s_total = (
@@ -62,7 +62,7 @@ def get_features_by_entity(
         del temp2
 
     for col in fill:
-        temp3 = data[[name, col]]
+        temp3 = data[[name, col]].copy()
         s_filled = temp3.groupby(name)[col].sum().rename(f"{col}_{name}")
         df_metrics = df_metrics.merge(
             right=s_filled,
