@@ -200,6 +200,11 @@ def feature_engineering(
         col_names_filled,
     )
     logger.info("Merging data with features by brokerage logo")
+    logger.info(df)
+    logger.info(df.columns)
+    logger.info(df_logo_features)
+    logger.info(df_logo_features.columns)
+
     df = combine_features(
         df,
         df_logo_features,
