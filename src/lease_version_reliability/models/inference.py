@@ -1,3 +1,4 @@
+import gc
 import logging
 
 import pandas as pd
@@ -93,6 +94,7 @@ async def run_inference(download: bool) -> None:
     submitter_df, _ = get_submitter_reliability(df, x_cols, y_cols, model_dict)
 
     del df
+    gc.collect()
 
     logger.info("Calculating Version Results")
     version_reliability_df = get_version_reliability(
@@ -104,6 +106,7 @@ async def run_inference(download: bool) -> None:
     )
 
     del df_all
+    gc.collect()
 
     submitter_df = modify_submitter_df(submitter_df)
     version_reliability_df = modify_version_df(version_reliability_df)

@@ -1,3 +1,4 @@
+import gc
 from typing import Any
 
 import numpy as np
@@ -42,6 +43,7 @@ def get_features_by_entity(
 
         del s_correct
         del temp1
+        gc.collect()
 
         temp2 = data[[name, col]].copy()
         temp2[col] = data[col].replace([-1, 0], [1, 1])
@@ -60,6 +62,7 @@ def get_features_by_entity(
 
         del s_total
         del temp2
+        gc.collect()
 
     for col in fill:
         temp3 = data[[name, col]].copy()
@@ -73,6 +76,7 @@ def get_features_by_entity(
 
         del s_filled
         del temp3
+        gc.collect()
 
     cols = list(df_metrics.columns)
     cols.remove(name)
