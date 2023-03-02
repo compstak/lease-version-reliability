@@ -32,7 +32,7 @@ def get_features_by_entity(
             temp1.groupby(name)[col]
             .sum()
             .rename(f"{col.replace('label', 'correct')}_{name}")
-        )
+        ).astype(int)
 
         df_metrics = df_metrics.merge(
             right=s_correct,
@@ -52,7 +52,8 @@ def get_features_by_entity(
             temp2.groupby(name)[col]
             .sum()
             .rename(f"{col.replace('label', 'total')}_{name}")
-        )
+        ).astype(int)
+
         df_metrics = df_metrics.merge(
             right=s_total,
             how="inner",
@@ -66,7 +67,9 @@ def get_features_by_entity(
 
     for col in fill:
         temp3 = data[[name, col]].copy()
-        s_filled = temp3.groupby(name)[col].sum().rename(f"{col}_{name}")
+        s_filled = (
+            temp3.groupby(name)[col].sum().rename(f"{col}_{name}").astype(int)
+        )
         df_metrics = df_metrics.merge(
             right=s_filled,
             how="inner",
@@ -109,8 +112,8 @@ def combine_features(
         col_label = f"{c}_{name}_hist"
         col_total = f"{replace_total}_{name}_hist"
 
-        df[col_label] = df[f"{c}_{name}"] - df[f"{replace_label}"]
-        df[col_total] = df[f"{replace_total}_{name}"] - 1
+        df[col_label] = (df[f"{c}_{name}"] - df[f"{replace_label}"]).astype(int)
+        df[col_total] = (df[f"{replace_total}_{name}"] - 1).astype(int)
 
         cols_added.append(col_label)
         cols_added.append(col_total)
@@ -118,7 +121,7 @@ def combine_features(
     logger.info("filled")
     for f in filled:
         col_filled = f"{f}_{name}_hist"
-        df[col_filled] = df[f"{f}_{name}"] - df[f"{f}"]
+        df[col_filled] = (df[f"{f}_{name}"] - df[f"{f}"]).astype(int)
         cols_added.append(col_filled)
 
     df[cols_added] = df[cols_added].fillna(value=0)
@@ -194,6 +197,7 @@ def feature_engineering(
 
     logger.info(str(data.columns))
     logger.info(str(df_submitter_features.columns))
+
     df = combine_features(
         data,
         df_submitter_features,

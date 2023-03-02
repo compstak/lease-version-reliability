@@ -68,4 +68,4 @@ WHERE cm.id IN
 )
 AND cv.id > {min}
 AND cv.id <= {max}
-ORDER BY cv.id limit 100;
+ORDER BY cv.id;
