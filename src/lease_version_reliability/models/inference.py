@@ -84,7 +84,7 @@ async def run_inference(download: bool) -> None:
         download_models()
     model_dict = read_model(settings.TRAIN_CONFIG.MODEL_FILENAME)
 
-    df, df_all = await load_data(mysql)
+    df, df_all = await load_data()
     x_cols, y_cols = get_split_columns(df.columns)
 
     attributes = settings.ATTRIBUTES

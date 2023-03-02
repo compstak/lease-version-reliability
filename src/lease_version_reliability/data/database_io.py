@@ -99,7 +99,6 @@ async def get_reliable_data() -> pd.DataFrame:
     Return reliable data (more than 3 submitted versions) and logorithm data
     """
     id = await get_version_max_id(mysql)
-    logger.info("Get reliable data and logorithm data")
     df = pd.DataFrame()
     for i in range(0, id, settings.BATCH_CONFIG.BATCH_SIZE):
         logger.info(f"Processing {i + settings.BATCH_CONFIG.BATCH_SIZE}/{id}")
@@ -121,7 +120,6 @@ async def get_all_data() -> pd.DataFrame:
     """
 
     id = await get_version_max_id(mysql)
-    logger.info("Get all versions and logorithm data")
     df = pd.DataFrame()
     for i in range(0, id, settings.BATCH_CONFIG.BATCH_SIZE):
         logger.info(f"Processing {i + settings.BATCH_CONFIG.BATCH_SIZE}/{id}")
