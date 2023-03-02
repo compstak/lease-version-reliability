@@ -94,24 +94,32 @@ def combine_features(
     Function to merge data with features by name (submitter or brokerage logo)
     """
     logger.info("merge start")
-    logger.info(data)
-    logger.info(agg_data)
-    logger.info(data.isnull().sum())
     df = data.merge(agg_data, how=how)
-    logger.info("merge done")
 
+    logger.info("correct")
+    cols_added = []
     for c in correct:
-        logger.info(c)
         replace_total = c.replace("correct", "total")
         replace_label = c.replace("correct", "label")
 
-        df[f"{c}_{name}_hist"] = df[f"{c}_{name}"] - df[f"{replace_label}"]
-        df[f"{replace_total}_{name}_hist"] = df[f"{replace_total}_{name}"] - 1
+        col_label = f"{c}_{name}_hist"
+        col_total = f"{replace_total}_{name}_hist"
 
+        df[col_label] = df[f"{c}_{name}"] - df[f"{replace_label}"]
+        df[col_total] = df[f"{replace_total}_{name}"] - 1
+
+        cols_added.append(col_label)
+        cols_added.append(col_total)
+
+    logger.info("filled")
     for f in filled:
-        df[f"{f}_{name}_hist"] = df[f"{f}_{name}"] - df[f"{f}"]
+        col_filled = f"{f}_{name}_hist"
+        df[col_filled] = df[f"{f}_{name}"] - df[f"{f}"]
+        cols_added.append(col_filled)
 
-    return df.fillna(0)
+    df[cols_added] = df[cols_added].fillna(value=0)
+
+    return df
 
 
 def get_rate_features(

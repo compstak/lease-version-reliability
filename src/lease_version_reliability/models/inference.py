@@ -92,6 +92,8 @@ async def run_inference(download: bool) -> None:
     logger.info("Calculating Submitter Results")
     submitter_df, _ = get_submitter_reliability(df, x_cols, y_cols, model_dict)
 
+    del df
+
     logger.info("Calculating Version Results")
     version_reliability_df = get_version_reliability(
         df_all,
@@ -100,6 +102,8 @@ async def run_inference(download: bool) -> None:
         y_cols,
         model_dict,
     )
+
+    del df_all
 
     submitter_df = modify_submitter_df(submitter_df)
     version_reliability_df = modify_version_df(version_reliability_df)
