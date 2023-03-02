@@ -1,4 +1,5 @@
 from datetime import timedelta
+import gc
 from importlib import resources
 from typing import Any
 
@@ -113,6 +114,8 @@ async def get_reliable_data() -> pd.DataFrame:
         )
         df = pd.concat([df, data], ignore_index=True)
         counter += 1
+        del data
+        gc.collect()
     df = await get_logo_df(df)
 
     return df
@@ -137,6 +140,9 @@ async def get_all_data() -> pd.DataFrame:
             i + settings.BATCH_CONFIG.BATCH_SIZE,
         )
         df = pd.concat([df, data], ignore_index=True)
+        del data
+        gc.collect()
+
         counter += 1
     df = await get_logo_df(df)
 
