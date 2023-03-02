@@ -2,6 +2,9 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import structlog
+
+logger = structlog.get_logger()
 
 
 def get_features_by_entity(
@@ -143,18 +146,23 @@ def feature_engineering(
     """
     Get combined submitter and brokerage logo based features by version.
     """
+    logger.info("Calculating submissions feature for SUBMITTER")
     df_submitter_features = get_features_by_entity(
         data,
         "submitter_person_id",
         col_names_label,
         col_names_filled,
     )
+
+    logger.info("Calculating submission features BROKERAGE LOGO")
     df_logo_features = get_features_by_entity(
         data,
         "logo",
         col_names_label,
         col_names_filled,
     )
+
+    logger.info("Merging data with features by submitter id")
     df = combine_features(
         data,
         df_submitter_features,
@@ -163,6 +171,7 @@ def feature_engineering(
         col_names_correct,
         col_names_filled,
     )
+    logger.info("Merging data with features by brokerage logo")
     df = combine_features(
         df,
         df_logo_features,
@@ -171,6 +180,7 @@ def feature_engineering(
         col_names_correct,
         col_names_filled,
     )
+    logger.info("Converting features into rate")
     df = get_rate_features(df, attributes)
 
     return df

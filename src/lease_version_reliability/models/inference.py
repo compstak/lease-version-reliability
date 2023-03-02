@@ -5,7 +5,6 @@ import structlog
 
 from lease_version_reliability.common.file_io import download_models, read_model
 from lease_version_reliability.config.settings import settings
-from lease_version_reliability.data.database import CompstakServicesMySQL
 from lease_version_reliability.data.database import cs_mysql_instance as mysql
 from lease_version_reliability.data.database_io import (
     get_all_data,
@@ -29,9 +28,7 @@ logger = structlog.get_logger()
 logging.getLogger("snowflake.connector").setLevel(logging.WARNING)
 
 
-async def load_data(
-    db: CompstakServicesMySQL,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+async def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Get reliable data (with more than 3 versions) and all version data
     Retrun datasets after performing feature engineering

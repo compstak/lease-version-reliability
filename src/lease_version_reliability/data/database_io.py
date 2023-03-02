@@ -1,6 +1,6 @@
 from datetime import timedelta
 from importlib import resources
-import typing
+from typing import Any
 
 import jellyfish
 import numpy as np
@@ -50,7 +50,7 @@ async def get_logo_df(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
-async def get_version_max_id(db: CompstakServicesMySQL) -> typing.Any:
+async def get_version_max_id(db: CompstakServicesMySQL) -> Any:
     """
     Retrun max id of comp_version table
     """
@@ -296,7 +296,7 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
     return data
 
 
-def get_column_names(attributes: typing.Any) -> typing.Any:
+def get_column_names(attributes: Any) -> Any:
     """
     Retrun correct, filled, and label columns for each attribute
     """
@@ -311,8 +311,8 @@ def get_column_names(attributes: typing.Any) -> typing.Any:
 
 
 def get_split_columns(
-    columns: typing.Any,
-) -> typing.Any:
+    columns: Any,
+) -> Any:
     """
     Split into input and target columns
     """
