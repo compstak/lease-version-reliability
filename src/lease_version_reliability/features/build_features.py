@@ -24,10 +24,11 @@ def get_features_by_entity(
     df_metrics[name] = ids
 
     for col in label:
-        temp = data.copy()
-        temp[col] = data[col].replace(-1, 0)
+        temp1 = data[[name, col]]
+        temp1[col] = data[col].replace(-1, 0)
+
         s_correct = (
-            temp.groupby(name)[col]
+            temp1.groupby(name)[col]
             .sum()
             .rename(f"{col.replace('label', 'correct')}_{name}")
         )
@@ -39,10 +40,14 @@ def get_features_by_entity(
             right_index=True,
         )
 
-        temp = data.copy()
-        temp[col] = data[col].replace([-1, 0], [1, 1])
+        del s_correct
+        del temp1
+
+        temp2 = data[[name, col]]
+        temp2[col] = data[col].replace([-1, 0], [1, 1])
+
         s_total = (
-            temp.groupby(name)[col]
+            temp2.groupby(name)[col]
             .sum()
             .rename(f"{col.replace('label', 'total')}_{name}")
         )
@@ -53,11 +58,12 @@ def get_features_by_entity(
             right_index=True,
         )
 
-    for col in fill:
-        temp = data.copy()
-        temp[col] = data[col].replace([-1, 0, 1], [0, 1, 1])
+        del s_total
+        del temp2
 
-        s_filled = temp.groupby(name)[col].sum().rename(f"{col}_{name}")
+    for col in fill:
+        temp3 = data[[name, col]]
+        s_filled = temp3.groupby(name)[col].sum().rename(f"{col}_{name}")
         df_metrics = df_metrics.merge(
             right=s_filled,
             how="inner",
@@ -65,10 +71,14 @@ def get_features_by_entity(
             right_index=True,
         )
 
+        del s_filled
+        del temp3
+
     cols = list(df_metrics.columns)
     cols.remove(name)
 
     df_metrics = df_metrics[[name] + sorted(cols)]
+
     return df_metrics
 
 
