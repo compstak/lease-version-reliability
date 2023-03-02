@@ -285,6 +285,8 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
     """
     Populate each attribute column based on label calculation rules
     """
+
+    drop_columns = []
     for att in attributes:
         logger.info(f"Calculating Labels: {att}")
         data[att + "_filled"] = np.where(
@@ -304,6 +306,10 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
 
         else:
             data = attribute_to_label_dict[att](data, att)
+
+        drop_columns.append(att + "_version")
+        drop_columns.append(att + "_master")
+    data = data.drop(drop_columns, axis=1)
 
     return data
 
