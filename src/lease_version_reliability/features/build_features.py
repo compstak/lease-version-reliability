@@ -96,12 +96,14 @@ def combine_features(
     how: str,
     correct: list[Any],
     filled: list[Any],
+    left_on: str,
+    right_on: str,
 ) -> pd.DataFrame:
     """
     Function to merge data with features by name (submitter or brokerage logo)
     """
     logger.info("merge start")
-    df = data.merge(agg_data, how=how)
+    df = data.merge(agg_data, how=how, left_on=left_on, right_on=right_on)
 
     logger.info("correct")
     cols_added = []
@@ -205,9 +207,9 @@ def feature_engineering(
         "inner",
         col_names_correct,
         col_names_filled,
+        "submitter_person_id",
+        "submitter_person_id",
     )
-    logger.info(str(df.columns))
-    logger.info(str(df_logo_features.columns))
 
     df = combine_features(
         df,
@@ -216,6 +218,8 @@ def feature_engineering(
         "left",
         col_names_correct,
         col_names_filled,
+        "logo",
+        "logo",
     )
     logger.info("Converting features into rate")
     df = get_rate_features(df, attributes)
