@@ -100,15 +100,19 @@ async def get_reliable_data() -> pd.DataFrame:
     """
     id = await get_version_max_id(mysql)
     df = pd.DataFrame()
+    counter = 1
     for i in range(0, id, settings.BATCH_CONFIG.BATCH_SIZE):
-        logger.info(f"Processing {i + settings.BATCH_CONFIG.BATCH_SIZE}/{id}")
+        if (counter == 1) or (counter % 10) == 0:
+            logger.info(
+                f"Processed {i + settings.BATCH_CONFIG.BATCH_SIZE}/{id}",
+            )
         data = await batch_reliable_data(
             mysql,
             i,
             i + settings.BATCH_CONFIG.BATCH_SIZE,
         )
         df = pd.concat([df, data], ignore_index=True)
-
+        counter += 1
     df = await get_logo_df(df)
 
     return df
@@ -121,15 +125,19 @@ async def get_all_data() -> pd.DataFrame:
 
     id = await get_version_max_id(mysql)
     df = pd.DataFrame()
+    counter = 1
     for i in range(0, id, settings.BATCH_CONFIG.BATCH_SIZE):
-        logger.info(f"Processing {i + settings.BATCH_CONFIG.BATCH_SIZE}/{id}")
+        if (counter == 1) or (counter % 10) == 0:
+            logger.info(
+                f"Processing {i + settings.BATCH_CONFIG.BATCH_SIZE}/{id}",
+            )
         data = await batch_all_data(
             mysql,
             i,
             i + settings.BATCH_CONFIG.BATCH_SIZE,
         )
         df = pd.concat([df, data], ignore_index=True)
-
+        counter += 1
     df = await get_logo_df(df)
 
     return df
