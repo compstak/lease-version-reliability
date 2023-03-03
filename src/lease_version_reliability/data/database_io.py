@@ -314,7 +314,7 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
         if att == "tenant_name":
             data["tenant_name_label"] = (
                 data[["tenant_name_version", "tenant_name_master"]]
-                .apply(label_tenant_name)
+                .apply(lambda x: label_tenant_name(*x), axis=1)
                 .astype("int32")
             )
             # data[att + "_label"] = data.apply(
