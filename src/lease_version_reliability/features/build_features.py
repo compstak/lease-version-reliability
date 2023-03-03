@@ -27,10 +27,11 @@ def get_features_by_entity(
     for col in label:
         logger.info(f"Get Correct Count: {col}")
 
-        temp1 = data[[name, col]].copy()
-        temp1[col] = data[col].replace(-1, 0)
+        # temp1 = data[[name, col]].copy()
+        # temp1[col] = data[col].replace(-1, 0)
+        # s_correct = temp1.groupby(name)[col].sum()
 
-        s_correct = temp1.groupby(name)[col].sum()
+        s_correct = data[data.col.isin([1])].groupby(name)[col].count()
 
         s_correct_dict = s_correct.to_dict()
         df_metrics[f"{col.replace('label', 'correct')}_{name}"] = (
@@ -44,15 +45,16 @@ def get_features_by_entity(
         # )
 
         del s_correct
-        del temp1
+        # del temp1
         del s_correct_dict
         gc.collect()
 
         logger.info(f"Get Total Count: {col}")
-        temp2 = data[[name, col]].copy()
-        temp2[col] = data[col].replace([-1, 0], [1, 1])
+        # temp2 = data[[name, col]].copy()
+        # temp2[col] = data[col].replace([-1, 0], [1, 1])
+        # s_total = temp2.groupby(name)[col].sum()
 
-        s_total = temp2.groupby(name)[col].sum()
+        s_total = data.groupby(name)[col].count()
 
         s_total_dict = s_total.to_dict()
         df_metrics[f"{col.replace('label', 'total')}_{name}"] = (
@@ -67,16 +69,17 @@ def get_features_by_entity(
         # )
 
         del s_total
-        del temp2
+        # del temp2
         del s_total_dict
         gc.collect()
 
     for col in fill:
         logger.info(f"Get Correct Count: {col}")
-        temp3 = data[[name, col]].copy()
-        temp3[col] = temp3[col].replace([-1, 0, 1], [0, 1, 1])
-        s_filled = temp3.groupby(name)[col].sum()
+        # temp3 = data[[name, col]].copy()
+        # temp3[col] = temp3[col].replace([-1, 0, 1], [0, 1, 1])
+        # s_filled = temp3.groupby(name)[col].sum()
 
+        s_filled = data[data[col].isin([0, 1])].groupby(name)[col].count()
         s_filled_dict = s_filled.to_dict()
         df_metrics[f"{col}_{name}"] = df_metrics[name].map(s_filled).fillna(0)
 
@@ -88,7 +91,7 @@ def get_features_by_entity(
         # )
 
         del s_filled
-        del temp3
+        # del temp3
         del s_filled_dict
         gc.collect()
 

@@ -32,6 +32,7 @@ cdm.rent_bumps_percent_bumps AS rent_bumps_percent_bumps_master,
 cdm.rent_bumps_dollar_bumps AS rent_bumps_dollar_bumps_master,
 cdm.lease_type_id AS lease_type_id_master,
 s.specialk_id
+
 FROM
 comp_version cv
 JOIN comp_data cdv
