@@ -141,26 +141,26 @@ def get_rate_features(
 
     for att in attributes:
         df[f"{att}_submitter_correct_rate"] = np.where(
-            df[f"{att}_filled_submitter_person_id"] > 0,
-            df[f"{att}_correct_submitter_person_id"]
-            / df[f"{att}_filled_submitter_person_id"],
+            data[f"{att}_filled_submitter_person_id"] > 0,
+            data[f"{att}_correct_submitter_person_id"]
+            / data[f"{att}_filled_submitter_person_id"],
             0,
         ).astype(float)
         df[f"{att}_submitter_fill_rate"] = np.where(
-            df[f"{att}_total_submitter_person_id"] > 0,
-            df[f"{att}_filled_submitter_person_id"]
-            / df[f"{att}_total_submitter_person_id"],
+            data[f"{att}_total_submitter_person_id"] > 0,
+            data[f"{att}_filled_submitter_person_id"]
+            / data[f"{att}_total_submitter_person_id"],
             0,
         ).astype(float)
 
         df[f"{att}_logo_correct_rate"] = np.where(
-            df[f"{att}_filled_logo"] > 0,
-            df[f"{att}_correct_logo"] / df[f"{att}_filled_logo"],
+            data[f"{att}_filled_logo"] > 0,
+            data[f"{att}_correct_logo"] / data[f"{att}_filled_logo"],
             0,
         ).astype(float)
         df[f"{att}_logo_fill_rate"] = np.where(
-            df[f"{att}_total_logo"] > 0,
-            df[f"{att}_filled_logo"] / df[f"{att}_total_logo"],
+            data[f"{att}_total_logo"] > 0,
+            data[f"{att}_filled_logo"] / data[f"{att}_total_logo"],
             0,
         ).astype(float)
 
