@@ -130,7 +130,15 @@ def get_rate_features(
     and filled submissions) and convert them into a rate.
     i.e. Fill rate = number submissions filled / total number of submissions
     """
-    df = data
+    new_cols = []
+    for att in attributes:
+        new_cols.append(f"{att}_submitter_correct_rate")
+        new_cols.append(f"{att}_submitter_fill_rate")
+        new_cols.append(f"{att}_logo_correct_rate")
+        new_cols.append(f"{att}_logo_fill_rate")
+
+    df = pd.DataFrame(columns=new_cols, dtypes=[float] * len(new_cols))
+
     for att in attributes:
         df[f"{att}_submitter_correct_rate"] = np.where(
             df[f"{att}_filled_submitter_person_id"] > 0,
@@ -156,7 +164,7 @@ def get_rate_features(
             0,
         )
 
-    return df
+    return pd.concat([data, df], axis=1)
 
 
 def feature_engineering(
