@@ -113,10 +113,19 @@ def combine_features(
         left_on=left_on,
         right_on=right_on,
     )
+
+    del dask_data
+    del dask_agg_data
+    gc.collect()
+
     df = dask_df.compute()
 
+    del dask_df
+    gc.collect()
+
     logger.info("merge end")
-    logger.info("correct")
+
+    logger.info("Start with correct")
     cols_added = []
     for c in correct:
         replace_total = c.replace("correct", "total")
@@ -131,13 +140,12 @@ def combine_features(
         cols_added.append(col_label)
         cols_added.append(col_total)
 
-    logger.info("filled")
+    logger.info("Start with filled correct")
     for f in filled:
         col_filled = f"{f}_{name}_hist"
         df[col_filled] = (df[f"{f}_{name}"] - df[f"{f}"]).astype(int)
         cols_added.append(col_filled)
 
-    df = df.drop([])
     df[cols_added] = df[cols_added].fillna(value=0)
 
     return df
@@ -191,7 +199,7 @@ def feature_engineering(
     """
     Get combined submitter and brokerage logo based features by version.
     """
-    logger.info("Combine logo features")
+    logger.info("Get Submitter Features")
     df_submitter_features = get_features_by_entity(
         data,
         "submitter_person_id",
@@ -199,6 +207,7 @@ def feature_engineering(
         col_names_filled,
     )
 
+    logger.info("Combine Submitter Features")
     df = combine_features(
         data,
         df_submitter_features,
@@ -214,18 +223,15 @@ def feature_engineering(
     del (df_submitter_features,)
     gc.collect()
 
-    logger.info("Combine brokerage features")
+    logger.info("Get brokerage features")
     df_logo_features = get_features_by_entity(
         df,
         "logo",
         col_names_label,
         col_names_filled,
     )
-    logger.info(df.logo.value_counts())
-    logger.info(df.logo.isnull().sum())
-    logger.info(df_logo_features.logo.value_counts())
-    logger.info(df_logo_features.logo.isnull().sum())
 
+    logger.info("Combine brokerage features")
     df = combine_features(
         df,
         df_logo_features,
