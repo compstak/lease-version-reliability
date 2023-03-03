@@ -143,8 +143,6 @@ def combine_features(
         data[col_filled] = (data[f"{f}_{name}"] - data[f"{f}"]).astype(int)
         cols_added.append(col_filled)
 
-    data[cols_added] = data[cols_added].fillna(value=0)
-
     return data
 
 
@@ -220,6 +218,8 @@ def feature_engineering(
     del (df_submitter_features,)
     gc.collect()
 
+    logger.info("Done combining submitter features")
+
     logger.info("Get brokerage features")
     df_logo_features = get_features_by_entity(
         df,
@@ -239,6 +239,7 @@ def feature_engineering(
         "logo",
         "logo",
     )
+    logger.info("Done combining brokerage features")
 
     del df_logo_features
     gc.collect()
