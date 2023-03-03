@@ -1,5 +1,5 @@
 attributes = [
-    "tenant_name",
+    # "tenant_name",
     "space_type_id",
     "transaction_size",
     "starting_rent",
