@@ -177,6 +177,13 @@ def feature_engineering(
         col_names_filled,
     )
 
+    logger.info("Get Brokerage Features")
+    df_logo_features = get_features_by_entity(
+        data,
+        "logo",
+        col_names_label,
+        col_names_filled,
+    )
     logger.info("Combine Submitter Features")
     df = combine_features(
         data,
@@ -188,39 +195,9 @@ def feature_engineering(
         "submitter_person_id",
         "submitter_person_id",
     )
-
     del data
-    del (df_submitter_features,)
+    del df_submitter_features
     gc.collect()
-
-    logger.info("Done combining submitter features")
-
-    logger.info("Get brokerage features")
-    brokerages = [
-        "Cushman&Wakefield",
-        "Colliers",
-        "IntegraRealtyResources",
-        "Colliers",
-        "IntegraRealtyResources",
-        "NewmarkGrubbKnightFrank",
-        "CBRE",
-        "NewmarkCornish&Carey",
-        "KidderMathews",
-        "NAI",
-        "Lee&Associates",
-        "AvisonYoung",
-        "JLL",
-        "VoitRealEstateServices",
-        "Transwestern",
-        "CoStar",
-        "DTZ",
-    ]
-    df_logo_features = get_features_by_entity(
-        df[df.logo.isin(brokerages)],
-        "logo",
-        col_names_label,
-        col_names_filled,
-    )
 
     logger.info("Combine brokerage features")
     df = combine_features(
