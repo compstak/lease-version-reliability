@@ -21,7 +21,9 @@ def get_features_by_entity(
     df_metrics = pd.DataFrame()
     ids = list(data[name].unique())
     if np.NaN in ids:
+        logger.info(ids)
         ids.remove(np.NaN)
+        ids.remoove("others")
     df_metrics[name] = ids
 
     for col in label:
