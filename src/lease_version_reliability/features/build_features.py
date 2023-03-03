@@ -31,7 +31,7 @@ def get_features_by_entity(
         # temp1[col] = data[col].replace(-1, 0)
         # s_correct = temp1.groupby(name)[col].sum()
 
-        s_correct = data[data.col.isin([1])].groupby(name)[col].count()
+        s_correct = data[data[col].isin([1])].groupby(name)[col].count()
 
         s_correct_dict = s_correct.to_dict()
         df_metrics[f"{col.replace('label', 'correct')}_{name}"] = (
