@@ -112,7 +112,7 @@ async def train_model(upload: bool) -> None:
 
     logger.info("Get Reliable Data")
     # training data (masters with >3 versions within it)
-    reliable_data = await get_reliable_data(mysql)
+    reliable_data = await get_reliable_data()
 
     attributes = settings.ATTRIBUTES
 

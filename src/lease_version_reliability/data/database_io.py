@@ -76,7 +76,13 @@ async def batch_reliable_data(
         max=max,
     )
     data = [dict(item) for item in await db.fetch_all(query)]
-
+    data = pd.DataFrame(data)
+    for col in data.columns:
+        if col in settings.DATA_TYPE_DICT:
+            if settings.DATA_TYPE_DICT[col] == "datetime64[ns]":
+                data[col] = pd.to_datetime(data[col])
+            else:
+                data[col] = data[col].astype(settings.DATA_TYPE_DICT[col])
     return pd.DataFrame(data)
 
 
@@ -92,8 +98,15 @@ async def batch_all_data(
         min=min,
         max=max,
     )
-    data = [dict(item) for item in await db.fetch_all(query)]
 
+    data = [dict(item) for item in await db.fetch_all(query)]
+    data = pd.DataFrame(data)
+    for col in data.columns:
+        if col in settings.DATA_TYPE_DICT:
+            if settings.DATA_TYPE_DICT[col] == "datetime64[ns]":
+                data[col] = pd.to_datetime(data[col])
+            else:
+                data[col] = data[col].astype(settings.DATA_TYPE_DICT[col])
     return pd.DataFrame(data)
 
 
