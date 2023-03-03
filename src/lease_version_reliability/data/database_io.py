@@ -76,15 +76,7 @@ async def batch_reliable_data(
         max=max,
     )
     data = [dict(item) for item in await db.fetch_all(query)]
-    data = pd.DataFrame(data)
-    for col in data.columns:
-        if col in settings.DATA_TYPE_DICT:
-            if settings.DATA_TYPE_DICT[col] == "datetime64[ns]":
-                data[col] = pd.to_datetime(data[col])
-            else:
-                data[col] = data[col].astype(settings.DATA_TYPE_DICT[col])
-
-    return data
+    return pd.DataFrame(data)
 
 
 async def batch_all_data(
@@ -101,14 +93,17 @@ async def batch_all_data(
     )
 
     data = [dict(item) for item in await db.fetch_all(query)]
-    data = pd.DataFrame(data)
-    for col in data.columns:
-        if col in settings.DATA_TYPE_DICT:
-            if settings.DATA_TYPE_DICT[col] == "datetime64[ns]":
-                data[col] = pd.to_datetime(data[col])
-            else:
-                data[col] = data[col].astype(settings.DATA_TYPE_DICT[col])
-    return data
+    return pd.DataFrame(data)
+
+
+async def get_reliable_data_version_ids() -> list[int]:
+    """
+    Batch process all versions data from MySQL
+    """
+    query = read_file(settings.SQL_QUERY, "reliable_data_version_ids.sql")
+
+    data = [dict(item) for item in await mysql.fetch_all(query)]
+    return pd.DataFrame(data).id.tolist()
 
 
 async def get_reliable_data() -> pd.DataFrame:
@@ -312,19 +307,13 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
         )
 
         if att == "tenant_name":
-            data["tenant_name_label"] = (
-                data[["tenant_name_version", "tenant_name_master"]]
-                .apply(lambda x: label_tenant_name(*x), axis=1)
-                .astype("int32")
+            data[att + "_label"] = data.apply(
+                lambda x: attribute_to_label_dict[att](
+                    x[att + "_version"],
+                    x[att + "_master"],
+                ),
+                axis=1,
             )
-            # data[att + "_label"] = data.apply(
-            #     lambda x: attribute_to_label_dict[att](
-            #         x[att + "_version"],
-            #         x[att + "_master"],
-            #     ),
-            #     axis=1,
-            # )
-
         else:
             data = attribute_to_label_dict[att](data, att).astype("int32")
 

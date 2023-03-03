@@ -11,7 +11,7 @@ from lease_version_reliability.data.database_io import (
     get_all_data,
     get_column_names,
     get_labels,
-    get_reliable_data,
+    get_reliable_data_version_ids,
     get_split_columns,
     modify_submitter_df,
     modify_version_df,
@@ -35,8 +35,8 @@ async def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     Retrun datasets after performing feature engineering
     """
     # training data (masters with >3 versions within it)
-    logger.info("Reading Reliable Data from MySQL")
-    reliable_data = await get_reliable_data()
+    # logger.info("Reading Reliable Data from MySQL")
+    # reliable_data = await get_reliable_data()
 
     # all version data needed to export a reliability score
     logger.info("Reading All Data from MySQL")
@@ -48,19 +48,21 @@ async def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
         attributes,
     )
 
-    logger.info("Data Labels - Reliable Data")
-    data = get_labels(reliable_data, attributes)
+    reliable_version_ids = await get_reliable_data_version_ids()
+    # logger.info("Data Labels - Reliable Data")
+    # data = get_labels(reliable_data, attributes)
+
     logger.info("Data Labels - All Data")
     all_data = get_labels(all_data, attributes)
 
     logger.info("Feature Engineering - Reliable Data")
-    df = feature_engineering(
-        data,
-        col_names_label,
-        col_names_filled,
-        col_names_correct,
-        attributes,
-    )
+    # df = feature_engineering(
+    #     data,
+    #     col_names_label,
+    #     col_names_filled,
+    #     col_names_correct,
+    #     attributes,
+    # )
 
     logger.info("Feature Engineering - All Data")
     df_all = feature_engineering(
@@ -70,6 +72,8 @@ async def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
         col_names_correct,
         attributes,
     )
+
+    df = df_all[df_all.id.isin(reliable_version_ids)]
 
     return df, df_all
 
