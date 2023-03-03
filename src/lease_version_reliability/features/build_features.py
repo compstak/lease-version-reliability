@@ -137,7 +137,7 @@ def get_rate_features(
         new_cols.append(f"{att}_logo_correct_rate")
         new_cols.append(f"{att}_logo_fill_rate")
 
-    df = pd.DataFrame(columns=new_cols, dtype=[float] * len(new_cols))
+    df = pd.DataFrame(columns=new_cols, dtype=["float"] * len(new_cols))
 
     for att in attributes:
         df[f"{att}_submitter_correct_rate"] = np.where(
