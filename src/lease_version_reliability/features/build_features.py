@@ -37,7 +37,7 @@ def get_features_by_entity(
 
         s_correct_dict = s_correct.to_dict()
         df_metrics[f"{col.replace('label', 'correct')}_{name}"] = (
-            df_metrics[col].map(s_correct_dict).fillna(0)
+            df_metrics[name].map(s_correct_dict).fillna(0)
         )
         # df_metrics = df_metrics.merge(
         #     right=s_correct,
@@ -62,7 +62,7 @@ def get_features_by_entity(
 
         s_total_dict = s_total.to_dict()
         df_metrics[f"{col.replace('label', 'total')}_{name}"] = (
-            df_metrics[col].map(s_total_dict).fillna(0)
+            df_metrics[name].map(s_total_dict).fillna(0)
         )
 
         # df_metrics = df_metrics.merge(
@@ -86,7 +86,7 @@ def get_features_by_entity(
         )
 
         s_filled_dict = s_filled.to_dict()
-        df_metrics[f"{col}_{name}"] = df_metrics[col].map(s_filled).fillna(0)
+        df_metrics[f"{col}_{name}"] = df_metrics[name].map(s_filled).fillna(0)
 
         # df_metrics = df_metrics.merge(
         #     right=s_filled,
