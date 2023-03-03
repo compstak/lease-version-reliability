@@ -179,7 +179,7 @@ def feature_engineering(
 
     logger.info("Get Brokerage Features")
     df_logo_features = get_features_by_entity(
-        data,
+        data[~data.logo.isin([np.NaN, "others"])],
         "logo",
         col_names_label,
         col_names_filled,
