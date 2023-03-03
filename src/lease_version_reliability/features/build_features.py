@@ -137,7 +137,7 @@ def get_rate_features(
         new_cols.append(f"{att}_logo_correct_rate")
         new_cols.append(f"{att}_logo_fill_rate")
 
-    df = pd.DataFrame(columns=new_cols, dtype=["float"] * len(new_cols))
+    df = pd.DataFrame(columns=new_cols)
 
     for att in attributes:
         df[f"{att}_submitter_correct_rate"] = np.where(
@@ -145,24 +145,24 @@ def get_rate_features(
             df[f"{att}_correct_submitter_person_id"]
             / df[f"{att}_filled_submitter_person_id"],
             0,
-        )
+        ).astype(float)
         df[f"{att}_submitter_fill_rate"] = np.where(
             df[f"{att}_total_submitter_person_id"] > 0,
             df[f"{att}_filled_submitter_person_id"]
             / df[f"{att}_total_submitter_person_id"],
             0,
-        )
+        ).astype(float)
 
         df[f"{att}_logo_correct_rate"] = np.where(
             df[f"{att}_filled_logo"] > 0,
             df[f"{att}_correct_logo"] / df[f"{att}_filled_logo"],
             0,
-        )
+        ).astype(float)
         df[f"{att}_logo_fill_rate"] = np.where(
             df[f"{att}_total_logo"] > 0,
             df[f"{att}_filled_logo"] / df[f"{att}_total_logo"],
             0,
-        )
+        ).astype(float)
 
     return pd.concat([data, df], axis=1)
 
