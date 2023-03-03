@@ -30,7 +30,6 @@ databases = { version = "^0.7.0", extras = ["mysql"] }
 scikit-learn = "1.2.1"
 pandas = "^1.3.4"
 boto3 = "^1.26.62"
-dask  = "^2023.3.0"
 snowflake-connector-python = { version = "*", extras = ["pandas"]}
 jellyfish = "^0.9.0"
 

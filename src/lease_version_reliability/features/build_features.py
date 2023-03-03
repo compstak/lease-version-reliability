@@ -1,7 +1,6 @@
 import gc
 from typing import Any
 
-import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import structlog
@@ -102,29 +101,25 @@ def combine_features(
 ) -> pd.DataFrame:
     """
     Function to merge data with features by name (submitter or brokerage logo)
+
     """
-    logger.info("merge start")
-    dask_data = dd.from_pandas(data, npartitions=3)
-    dask_agg_data = dd.from_pandas(agg_data, npartitions=3)
 
-    dask_df = dask_data.merge(
-        dask_agg_data,
-        how=how,
-        left_on=left_on,
-        right_on=right_on,
-    )
-
-    del dask_data
-    del dask_agg_data
+    logger.info("Merge Start")
+    for col in agg_data:
+        if col != name:
+            temp_dict = dict(zip(agg_data[name], agg_data[col]))
+            data[col] = data[name].map(temp_dict).fillana(0)
+    del temp_dict
     gc.collect()
+    logger.info("Merge End")
 
-    df = dask_df.compute()
-
-    del dask_df
-    gc.collect()
-
-    logger.info("merge end")
-
+    # df = data.merge(
+    #     agg_data,
+    #     how=how,
+    #     left_on=left_on,
+    #     right_on=right_on,
+    # )
+    #
     logger.info("Start with correct")
     cols_added = []
     for c in correct:
@@ -134,21 +129,23 @@ def combine_features(
         col_label = f"{c}_{name}_hist"
         col_total = f"{replace_total}_{name}_hist"
 
-        df[col_label] = (df[f"{c}_{name}"] - df[f"{replace_label}"]).astype(int)
-        df[col_total] = (df[f"{replace_total}_{name}"] - 1).astype(int)
+        data[col_label] = (
+            data[f"{c}_{name}"] - data[f"{replace_label}"]
+        ).astype(int)
+        data[col_total] = (data[f"{replace_total}_{name}"] - 1).astype(int)
 
         cols_added.append(col_label)
         cols_added.append(col_total)
 
-    logger.info("Start with filled correct")
+    logger.info("Start with filled")
     for f in filled:
         col_filled = f"{f}_{name}_hist"
-        df[col_filled] = (df[f"{f}_{name}"] - df[f"{f}"]).astype(int)
+        data[col_filled] = (data[f"{f}_{name}"] - data[f"{f}"]).astype(int)
         cols_added.append(col_filled)
 
-    df[cols_added] = df[cols_added].fillna(value=0)
+    data[cols_added] = data[cols_added].fillna(value=0)
 
-    return df
+    return data
 
 
 def get_rate_features(
