@@ -102,6 +102,7 @@ async def batch_all_data(
     data = [dict(item) for item in await db.fetch_all(query)]
     data = pd.DataFrame(data)
     for col in data.columns:
+        print(col)
         if col in settings.DATA_TYPE_DICT:
             if settings.DATA_TYPE_DICT[col] == "datetime64[ns]":
                 data[col] = pd.to_datetime(data[col])

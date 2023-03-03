@@ -49,5 +49,5 @@ data_type_dict = {
     "rent_bumps_percent_bumps_master": "float64",
     "rent_bumps_dollar_bumps_master": "float64",
     "lease_type_id_master": "float64",
-    "specialk_id": "float64",
+    "specialk_id": "string[pyarrow]",
 }
