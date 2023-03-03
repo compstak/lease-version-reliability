@@ -26,6 +26,8 @@ def get_features_by_entity(
         ids.remove("others")
     df_metrics[name] = ids
 
+    logger.info(df_metrics[name].value_counts())
+
     for col in label:
         logger.info(f"Get Correct Count: {col}")
 
