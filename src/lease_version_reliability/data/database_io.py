@@ -315,7 +315,7 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
                 axis=1,
             )
         else:
-            data = attribute_to_label_dict[att](data, att).astype("int32")
+            data = attribute_to_label_dict[att](data, att)
 
         drop_columns.append(att + "_version")
         drop_columns.append(att + "_master")
