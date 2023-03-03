@@ -201,8 +201,27 @@ def feature_engineering(
     logger.info("Done combining submitter features")
 
     logger.info("Get brokerage features")
+    brokerages = [
+        "Cushman&Wakefield",
+        "Colliers",
+        "IntegraRealtyResources",
+        "Colliers",
+        "IntegraRealtyResources",
+        "NewmarkGrubbKnightFrank",
+        "CBRE",
+        "NewmarkCornish&Carey",
+        "KidderMathews",
+        "NAI",
+        "Lee&Associates",
+        "AvisonYoung",
+        "JLL",
+        "VoitRealEstateServices",
+        "Transwestern",
+        "CoStar",
+        "DTZ",
+    ]
     df_logo_features = get_features_by_entity(
-        df,
+        df[df.logo.isin(brokerages)],
         "logo",
         col_names_label,
         col_names_filled,
