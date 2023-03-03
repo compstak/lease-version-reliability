@@ -23,7 +23,7 @@ def get_features_by_entity(
     if np.NaN in ids:
         logger.info(ids)
         ids.remove(np.NaN)
-        ids.remoove("others")
+        ids.remove("others")
     df_metrics[name] = ids
 
     for col in label:
