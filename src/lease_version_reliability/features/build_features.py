@@ -1,6 +1,7 @@
 import gc
 from typing import Any
 
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import structlog
@@ -103,8 +104,18 @@ def combine_features(
     Function to merge data with features by name (submitter or brokerage logo)
     """
     logger.info("merge start")
-    df = data.merge(agg_data, how=how, left_on=left_on, right_on=right_on)
+    dask_data = dd.from_pandas(data, npartitions=3)
+    dask_agg_data = dd.from_pandas(agg_data, npartitions=3)
 
+    dask_df = dask_data.merge(
+        dask_agg_data,
+        how=how,
+        left_on=left_on,
+        right_on=right_on,
+    )
+    df = dask_df.compute()
+
+    logger.info("merge end")
     logger.info("correct")
     cols_added = []
     for c in correct:
