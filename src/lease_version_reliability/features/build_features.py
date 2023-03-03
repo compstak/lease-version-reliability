@@ -25,7 +25,7 @@ def get_features_by_entity(
         logger.info(f"Get Correct Count: {col}")
         s_correct = data[data[col].isin([1])].groupby(name)[col].count()
         if df_metrics.empty:
-            df_metrics = s_correct.index.tolist()
+            df_metrics[name] = s_correct.index.tolist()
         s_correct_dict = s_correct.to_dict()
         df_metrics[f"{col.replace('label', 'correct')}_{name}"] = (
             df_metrics[name].map(s_correct_dict).fillna(0)
