@@ -39,6 +39,10 @@ async def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     # reliable_data = await get_reliable_data()
 
     # all version data needed to export a reliability score
+
+    logger.info("Get Reliable Version Ids")
+    reliable_version_ids = await get_reliable_data_version_ids()
+
     logger.info("Reading All Data from MySQL")
     all_data = await get_all_data()
 
@@ -48,7 +52,6 @@ async def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
         attributes,
     )
 
-    reliable_version_ids = await get_reliable_data_version_ids()
     # logger.info("Data Labels - Reliable Data")
     # data = get_labels(reliable_data, attributes)
 
