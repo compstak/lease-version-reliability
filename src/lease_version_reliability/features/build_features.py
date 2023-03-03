@@ -77,6 +77,7 @@ def get_features_by_entity(
         del s_total_dict
         gc.collect()
 
+    logger.info("Get Filled Count")
     for col in fill:
         temp3 = data[[name, col]].copy()
         temp3[col] = temp3[col].replace([-1, 0, 1], [0, 1, 1])
