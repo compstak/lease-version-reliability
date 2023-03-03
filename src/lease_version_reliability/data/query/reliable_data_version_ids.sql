@@ -1,5 +1,5 @@
 SELECT
-cv.id,
+cv.id
 
 FROM
 comp_version cv
