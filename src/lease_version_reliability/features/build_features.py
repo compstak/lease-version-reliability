@@ -24,6 +24,7 @@ def get_features_by_entity(
         ids.remove(np.NaN)
     df_metrics[name] = ids
 
+    logger.info("Get Correct Count")
     for col in label:
         temp1 = data[[name, col]].copy()
         temp1[col] = data[col].replace(-1, 0)
@@ -34,15 +35,20 @@ def get_features_by_entity(
             .rename(f"{col.replace('label', 'correct')}_{name}")
         ).astype(int)
 
-        df_metrics = df_metrics.merge(
-            right=s_correct,
-            how="inner",
-            left_on=name,
-            right_index=True,
+        s_correct_dict = s_correct.to_dict()
+        df_metrics[f"{col.replace('label', 'correct')}_{name}"] = (
+            df_metrics[col].map(s_correct_dict).fillna(0)
         )
+        # df_metrics = df_metrics.merge(
+        #     right=s_correct,
+        #     how="inner",
+        #     left_on=name,
+        #     right_index=True,
+        # )
 
         del s_correct
         del temp1
+        del s_correct_dict
         gc.collect()
 
         temp2 = data[[name, col]].copy()
@@ -54,31 +60,43 @@ def get_features_by_entity(
             .rename(f"{col.replace('label', 'total')}_{name}")
         ).astype(int)
 
-        df_metrics = df_metrics.merge(
-            right=s_total,
-            how="inner",
-            left_on=name,
-            right_index=True,
+        s_total_dict = s_total.to_dict()
+        df_metrics[f"{col.replace('label', 'total')}_{name}"] = (
+            df_metrics[col].map(s_total_dict).fillna(0)
         )
+
+        # df_metrics = df_metrics.merge(
+        #     right=s_total,
+        #     how="inner",
+        #     left_on=name,
+        #     right_index=True,
+        # )
 
         del s_total
         del temp2
+        del s_total_dict
         gc.collect()
 
     for col in fill:
         temp3 = data[[name, col]].copy()
+        temp3[col] = temp3[col].replace([-1, 0, 1], [0, 1, 1])
         s_filled = (
             temp3.groupby(name)[col].sum().rename(f"{col}_{name}").astype(int)
         )
-        df_metrics = df_metrics.merge(
-            right=s_filled,
-            how="inner",
-            left_on=name,
-            right_index=True,
-        )
+
+        s_filled_dict = s_filled.to_dict()
+        df_metrics[f"{col}_{name}"] = df_metrics[col].map(s_filled).fillna(0)
+
+        # df_metrics = df_metrics.merge(
+        #     right=s_filled,
+        #     how="inner",
+        #     left_on=name,
+        #     right_index=True,
+        # )
 
         del s_filled
         del temp3
+        del s_filled_dict
         gc.collect()
 
     cols = list(df_metrics.columns)
