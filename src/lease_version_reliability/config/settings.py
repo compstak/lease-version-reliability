@@ -12,7 +12,7 @@ from lease_version_reliability.config.attributes import (
 class BatchConfig(BaseModel):
     """Application configurations."""
 
-    BATCH_SIZE: int = 25000
+    BATCH_SIZE: int = 100000
 
 
 class TrainConfig(BaseModel):
