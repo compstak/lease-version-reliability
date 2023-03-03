@@ -108,7 +108,7 @@ def combine_features(
     for col in agg_data:
         if col != name:
             temp_dict = dict(zip(agg_data[name], agg_data[col]))
-            data[col] = data[name].map(temp_dict).fillana(0)
+            data[col] = data[name].map(temp_dict).fillna(0)
     del temp_dict
     gc.collect()
     logger.info("Merge End")
