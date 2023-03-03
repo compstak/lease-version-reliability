@@ -83,7 +83,8 @@ async def batch_reliable_data(
                 data[col] = pd.to_datetime(data[col])
             else:
                 data[col] = data[col].astype(settings.DATA_TYPE_DICT[col])
-    return pd.DataFrame(data)
+
+    return data
 
 
 async def batch_all_data(
@@ -107,7 +108,7 @@ async def batch_all_data(
                 data[col] = pd.to_datetime(data[col])
             else:
                 data[col] = data[col].astype(settings.DATA_TYPE_DICT[col])
-    return pd.DataFrame(data)
+    return data
 
 
 async def get_reliable_data() -> pd.DataFrame:
