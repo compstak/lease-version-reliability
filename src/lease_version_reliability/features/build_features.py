@@ -158,6 +158,7 @@ def get_rate_features(
             data[f"{att}_correct_logo"] / data[f"{att}_filled_logo"],
             0,
         ).astype(float)
+
         df[f"{att}_logo_fill_rate"] = np.where(
             data[f"{att}_total_logo"] > 0,
             data[f"{att}_filled_logo"] / data[f"{att}_total_logo"],
