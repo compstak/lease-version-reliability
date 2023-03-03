@@ -47,8 +47,10 @@ async def get_logo_df(data: pd.DataFrame) -> pd.DataFrame:
         left_on="specialk_id",
         right_on="submission_id",
     )
-    data = data.drop(["submission_id"], axis=1)
-    return data
+    df = data.drop(["submission_id"], axis=1)
+    del data
+    gc.collect()
+    return df
 
 
 async def get_version_max_id(db: CompstakServicesMySQL) -> Any:
@@ -309,9 +311,10 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
 
         drop_columns.append(att + "_version")
         drop_columns.append(att + "_master")
-    data = data.drop(drop_columns, axis=1)
-
-    return data
+    df = data.drop(drop_columns, axis=1)
+    del data
+    gc.collect()
+    return df
 
 
 def get_column_names(attributes: Any) -> Any:

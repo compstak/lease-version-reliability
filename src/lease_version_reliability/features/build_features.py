@@ -24,16 +24,13 @@ def get_features_by_entity(
         ids.remove(np.NaN)
     df_metrics[name] = ids
 
-    logger.info("Get Correct Count")
     for col in label:
+        logger.info(f"Get Correct Count: {col}")
+
         temp1 = data[[name, col]].copy()
         temp1[col] = data[col].replace(-1, 0)
 
-        s_correct = (
-            temp1.groupby(name)[col]
-            .sum()
-            .rename(f"{col.replace('label', 'correct')}_{name}")
-        ).astype(int)
+        s_correct = temp1.groupby(name)[col].sum()
 
         s_correct_dict = s_correct.to_dict()
         df_metrics[f"{col.replace('label', 'correct')}_{name}"] = (
@@ -51,14 +48,11 @@ def get_features_by_entity(
         del s_correct_dict
         gc.collect()
 
+        logger.info(f"Get Total Count: {col}")
         temp2 = data[[name, col]].copy()
         temp2[col] = data[col].replace([-1, 0], [1, 1])
 
-        s_total = (
-            temp2.groupby(name)[col]
-            .sum()
-            .rename(f"{col.replace('label', 'total')}_{name}")
-        ).astype(int)
+        s_total = temp2.groupby(name)[col].sum()
 
         s_total_dict = s_total.to_dict()
         df_metrics[f"{col.replace('label', 'total')}_{name}"] = (
@@ -77,13 +71,11 @@ def get_features_by_entity(
         del s_total_dict
         gc.collect()
 
-    logger.info("Get Filled Count")
     for col in fill:
+        logger.info(f"Get Correct Count: {col}")
         temp3 = data[[name, col]].copy()
         temp3[col] = temp3[col].replace([-1, 0, 1], [0, 1, 1])
-        s_filled = (
-            temp3.groupby(name)[col].sum().rename(f"{col}_{name}").astype(int)
-        )
+        s_filled = temp3.groupby(name)[col].sum()
 
         s_filled_dict = s_filled.to_dict()
         df_metrics[f"{col}_{name}"] = df_metrics[name].map(s_filled).fillna(0)
@@ -148,10 +140,8 @@ def combine_features(
         col_label = f"{c}_{name}_hist"
         col_total = f"{replace_total}_{name}_hist"
 
-        data[col_label] = (
-            data[f"{c}_{name}"] - data[f"{replace_label}"]
-        ).astype(int)
-        data[col_total] = (data[f"{replace_total}_{name}"] - 1).astype(int)
+        data[col_label] = data[f"{c}_{name}"] - data[f"{replace_label}"]
+        data[col_total] = data[f"{replace_total}_{name}"] - 1
 
         cols_added.append(col_label)
         cols_added.append(col_total)
@@ -159,7 +149,7 @@ def combine_features(
     logger.info("Start with filled")
     for f in filled:
         col_filled = f"{f}_{name}_hist"
-        data[col_filled] = (data[f"{f}_{name}"] - data[f"{f}"]).astype(int)
+        data[col_filled] = data[f"{f}_{name}"] - data[f"{f}"]
         cols_added.append(col_filled)
 
     return data
