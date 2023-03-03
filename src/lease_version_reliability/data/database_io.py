@@ -312,16 +312,21 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
         )
 
         if att == "tenant_name":
-            data[att + "_label"] = data.apply(
-                lambda x: attribute_to_label_dict[att](
-                    x[att + "_version"],
-                    x[att + "_master"],
-                ),
-                axis=1,
+            data["tenant_name_label"] = (
+                data[["tenant_name_version"], "tenant_name_master"]
+                .apply(label_tenant_name)
+                .astype("int32")
             )
+            # data[att + "_label"] = data.apply(
+            #     lambda x: attribute_to_label_dict[att](
+            #         x[att + "_version"],
+            #         x[att + "_master"],
+            #     ),
+            #     axis=1,
+            # )
 
         else:
-            data = attribute_to_label_dict[att](data, att)
+            data = attribute_to_label_dict[att](data, att).astype("int32")
 
         drop_columns.append(att + "_version")
         drop_columns.append(att + "_master")
