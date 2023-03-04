@@ -137,35 +137,36 @@ def get_rate_features(
         new_cols.append(f"{att}_logo_correct_rate")
         new_cols.append(f"{att}_logo_fill_rate")
 
-    df = pd.DataFrame(columns=new_cols)
+    data = pd.concat([data, pd.DataFrame(columns=new_cols)], axis=1)
 
     for att in attributes:
-        df[f"{att}_submitter_correct_rate"] = np.where(
+        logger.info(f"{att} rates")
+        data[f"{att}_submitter_correct_rate"] = np.where(
             data[f"{att}_filled_submitter_person_id"] > 0,
             data[f"{att}_correct_submitter_person_id"]
             / data[f"{att}_filled_submitter_person_id"],
             0,
         ).astype(float)
-        df[f"{att}_submitter_fill_rate"] = np.where(
+        data[f"{att}_submitter_fill_rate"] = np.where(
             data[f"{att}_total_submitter_person_id"] > 0,
             data[f"{att}_filled_submitter_person_id"]
             / data[f"{att}_total_submitter_person_id"],
             0,
         ).astype(float)
 
-        df[f"{att}_logo_correct_rate"] = np.where(
+        data[f"{att}_logo_correct_rate"] = np.where(
             data[f"{att}_filled_logo"] > 0,
             data[f"{att}_correct_logo"] / data[f"{att}_filled_logo"],
             0,
         ).astype(float)
 
-        df[f"{att}_logo_fill_rate"] = np.where(
+        data[f"{att}_logo_fill_rate"] = np.where(
             data[f"{att}_total_logo"] > 0,
             data[f"{att}_filled_logo"] / data[f"{att}_total_logo"],
             0,
         ).astype(float)
 
-    return pd.concat([data, df], axis=1)
+    return data
 
 
 def feature_engineering(
