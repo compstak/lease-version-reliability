@@ -136,7 +136,7 @@ def get_rate_features(
         new_cols.append(f"{att}_submitter_fill_rate")
         new_cols.append(f"{att}_logo_correct_rate")
         new_cols.append(f"{att}_logo_fill_rate")
-
+    logger.info(len(data))
     df = pd.DataFrame(index=data.index, columns=new_cols)
 
     for att in attributes:
@@ -238,7 +238,7 @@ def feature_engineering(
             ):
                 cols.append(col)
     logger.info("Getting Rate Features")
-    df_rate = get_rate_features(df, attributes)
+    df_rate = get_rate_features(df[cols].drop_duplicates(), attributes)
     logger.info("Finished getting rate features")
     return df.merge(
         right=df_rate,
