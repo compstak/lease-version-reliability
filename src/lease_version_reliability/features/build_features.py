@@ -221,27 +221,29 @@ def feature_engineering(
     del df_logo_features
     gc.collect()
 
-    return df
-    # cols = []
-    # for att in attributes:
-    #     for col in df.columns:
-    #         if (
-    #             col.startswith(f"{att}_filled")
-    #             or col.startswith(f"{att}_total")
-    #             or col.startswith(f"{att}_correct")
-    #         ):
-    #             cols.append(col)
-    # logger.info("Getting Rate Features")
-    # df_rate = get_rate_features(
-    #     df.groupby(cols)["submitter_person_id"]
-    #     .reset_index()
-    #     .drop("submitter_person_id", axis=1),
-    #     attributes,
-    # )
-    # logger.info("Finished getting rate features")
-    # return df.merge(
-    #     right=df_rate,
-    #     how="inner",
-    #     left_on=cols,
-    #     right_on=cols,
-    # )
+    cols = []
+    for att in attributes:
+        for col in df.columns:
+            if (
+                col.startswith(f"{att}_filled")
+                or col.startswith(f"{att}_total")
+                or col.startswith(f"{att}_correct")
+            ):
+                cols.append(col)
+
+    logger.info(df.memory_usage())
+
+    logger.info("Getting Rate Features")
+    df_rate = get_rate_features(
+        df.groupby(cols)["submitter_person_id"]
+        .reset_index()
+        .drop("submitter_person_id", axis=1),
+        attributes,
+    )
+    logger.info("Finished getting rate features")
+    return df.merge(
+        right=df_rate,
+        how="inner",
+        left_on=cols,
+        right_on=cols,
+    )
