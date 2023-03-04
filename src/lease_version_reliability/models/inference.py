@@ -23,6 +23,7 @@ from lease_version_reliability.data.output_data import (
 )
 from lease_version_reliability.features.build_features import (
     feature_engineering,
+    get_rate_features,
 )
 
 logger = structlog.get_logger()
@@ -76,9 +77,31 @@ async def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
         attributes,
     )
 
-    df = df_all[df_all.id.isin(reliable_version_ids)]
+    cols = []
+    for att in attributes:
+        for col in df_all.columns:
+            if (
+                col.startswith(f"{att}_filled")
+                or col.startswith(f"{att}_total")
+                or col.startswith(f"{att}_correct")
+            ):
+                cols.append(col)
+    logger.info("Getting Rate Features")
+    df_rate = get_rate_features(df_all[cols].drop_duplicates(), attributes)
+    logger.info("Finished getting rate features")
 
-    return df, df_all
+    logger.info("start merge")
+    df_all = df_all.merge(
+        right=df_rate,
+        how="inner",
+        left_on=cols,
+        right_on=cols,
+    )
+    logger.info("end merge")
+
+    df_reliable = df_all[df_all.id.isin(reliable_version_ids)]
+
+    return df_reliable, df_all
 
 
 async def run_inference(download: bool) -> None:

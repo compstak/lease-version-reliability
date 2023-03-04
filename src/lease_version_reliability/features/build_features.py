@@ -137,7 +137,7 @@ def get_rate_features(
         new_cols.append(f"{att}_logo_correct_rate")
         new_cols.append(f"{att}_logo_fill_rate")
     logger.info(len(data))
-    df = pd.DataFrame(index=data.index, columns=new_cols)
+    df = pd.concat([data, pd.DataFrame(columns=new_cols)], axis=1)
 
     for att in attributes:
         logger.info(f"{att} rates")
@@ -225,24 +225,22 @@ def feature_engineering(
     del df_logo_features
     gc.collect()
 
-    for col in df:
-        print(col)
-
-    cols = []
-    for att in attributes:
-        for col in df.columns:
-            if (
-                col.startswith(f"{att}_filled")
-                or col.startswith(f"{att}_total")
-                or col.startswith(f"{att}_correct")
-            ):
-                cols.append(col)
-    logger.info("Getting Rate Features")
-    df_rate = get_rate_features(df[cols].drop_duplicates(), attributes)
-    logger.info("Finished getting rate features")
-    return df.merge(
-        right=df_rate,
-        how="inner",
-        left_index=True,
-        right_index=True,
-    )
+    return df
+    # cols = []
+    # for att in attributes:
+    #     for col in df.columns:
+    #         if (
+    #             col.startswith(f"{att}_filled")
+    #             or col.startswith(f"{att}_total")
+    #             or col.startswith(f"{att}_correct")
+    #         ):
+    #             cols.append(col)
+    # logger.info("Getting Rate Features")
+    # df_rate = get_rate_features(df[cols].drop_duplicates(), attributes)
+    # logger.info("Finished getting rate features")
+    # return df.merge(
+    #     right=df_rate,
+    #     how="inner",
+    #     left_index=True,
+    #     right_index=True,
+    # )
