@@ -224,7 +224,16 @@ def feature_engineering(
     del df_logo_features
     gc.collect()
 
-    logger.info("Converting features into rate")
-    df = get_rate_features(df, attributes)
-
-    return df
+    cols = []
+    for att in attributes:
+        for col in df.columns:
+            if (
+                col.startswith(f"{att}_filled")
+                or col.startswith(f"{att}_total")
+                or col.startswith(f"{att}_correct")
+            ):
+                cols.append(col)
+    logger.info("Getting Rate Features")
+    df_rate = get_rate_features(df[cols].drop_duplicates(), attributes)
+    logger.info("Finished getting rate features")
+    return df.merge(right=df_rate, how="inner", left_on=cols, right_on=cols)
