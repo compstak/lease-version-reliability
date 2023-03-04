@@ -225,6 +225,9 @@ def feature_engineering(
     del df_logo_features
     gc.collect()
 
+    for col in df:
+        print(col)
+
     cols = []
     for att in attributes:
         for col in df.columns:

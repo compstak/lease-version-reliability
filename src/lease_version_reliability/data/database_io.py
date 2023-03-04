@@ -47,10 +47,8 @@ async def get_logo_df(data: pd.DataFrame) -> pd.DataFrame:
         left_on="specialk_id",
         right_on="submission_id",
     )
-    df = data.drop(["submission_id"], axis=1)
-    del data
-    gc.collect()
-    return df
+
+    return data.drop(["submission_id", "specialk_id"], axis=1)
 
 
 async def get_version_max_id(db: CompstakServicesMySQL) -> Any:
