@@ -126,7 +126,6 @@ async def get_reliable_data() -> pd.DataFrame:
         del data
         gc.collect()
     df = await get_logo_df(df)
-
     return df
 
 
@@ -154,6 +153,10 @@ async def get_all_data() -> pd.DataFrame:
 
         counter += 1
     df = await get_logo_df(df)
+    for col in df:
+        print(col)
+        if col in settings.DATA_TYPE_DICT.keys():
+            df[col] = df[col].astype(settings.DATA_TYPE_DICT[col])
 
     return df
 
