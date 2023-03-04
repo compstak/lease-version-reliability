@@ -137,36 +137,36 @@ def get_rate_features(
         new_cols.append(f"{att}_logo_correct_rate")
         new_cols.append(f"{att}_logo_fill_rate")
 
-    data = pd.concat([data, pd.DataFrame(columns=new_cols)], axis=1)
+    df = pd.DataFrame(index=data.index, columns=new_cols)
 
     for att in attributes:
         logger.info(f"{att} rates")
-        data[f"{att}_submitter_correct_rate"] = np.where(
+        df[f"{att}_submitter_correct_rate"] = np.where(
             data[f"{att}_filled_submitter_person_id"] > 0,
             data[f"{att}_correct_submitter_person_id"]
             / data[f"{att}_filled_submitter_person_id"],
             0,
         ).astype(float)
-        data[f"{att}_submitter_fill_rate"] = np.where(
+        df[f"{att}_submitter_fill_rate"] = np.where(
             data[f"{att}_total_submitter_person_id"] > 0,
             data[f"{att}_filled_submitter_person_id"]
             / data[f"{att}_total_submitter_person_id"],
             0,
         ).astype(float)
 
-        data[f"{att}_logo_correct_rate"] = np.where(
+        df[f"{att}_logo_correct_rate"] = np.where(
             data[f"{att}_filled_logo"] > 0,
             data[f"{att}_correct_logo"] / data[f"{att}_filled_logo"],
             0,
         ).astype(float)
 
-        data[f"{att}_logo_fill_rate"] = np.where(
+        df[f"{att}_logo_fill_rate"] = np.where(
             data[f"{att}_total_logo"] > 0,
             data[f"{att}_filled_logo"] / data[f"{att}_total_logo"],
             0,
         ).astype(float)
 
-    return data
+    return df
 
 
 def feature_engineering(
@@ -238,6 +238,11 @@ def feature_engineering(
             ):
                 cols.append(col)
     logger.info("Getting Rate Features")
-    df_rate = get_rate_features(df[cols].drop_duplicates(), attributes)
+    df_rate = get_rate_features(df, attributes)
     logger.info("Finished getting rate features")
-    return df.merge(right=df_rate, how="inner", left_on=cols, right_on=cols)
+    return df.merge(
+        right=df_rate,
+        how="inner",
+        left_index=True,
+        right_index=True,
+    )
