@@ -22,7 +22,6 @@ def get_features_by_entity(
     df_metrics = pd.DataFrame()
 
     for col in label:
-        logger.info(f"Get Correct Count: {col}")
         s_correct = data[data[col].isin([1])].groupby(name)[col].count()
         if df_metrics.empty:
             df_metrics[name] = s_correct.index.tolist()
@@ -35,7 +34,6 @@ def get_features_by_entity(
         del s_correct_dict
         gc.collect()
 
-        logger.info(f"Get Total Count: {col}")
         s_total = data.groupby(name)[col].count()
 
         s_total_dict = s_total.to_dict()
@@ -48,7 +46,6 @@ def get_features_by_entity(
         gc.collect()
 
     for col in fill:
-        logger.info(f"Get Correct Count: {col}")
         s_filled = data[data[col].isin([0, 1])].groupby(name)[col].count()
         s_filled_dict = s_filled.to_dict()
         df_metrics[f"{col}_{name}"] = df_metrics[name].map(s_filled).fillna(0)
@@ -97,7 +94,6 @@ def combine_features(
     #     right_on=right_on,
     # )
     #
-    logger.info("Start with correct")
     cols_added = []
     for c in correct:
         replace_total = c.replace("correct", "total")
@@ -112,7 +108,6 @@ def combine_features(
         cols_added.append(col_label)
         cols_added.append(col_total)
 
-    logger.info("Start with filled")
     for f in filled:
         col_filled = f"{f}_{name}_hist"
         data[col_filled] = data[f"{f}_{name}"] - data[f"{f}"]
@@ -136,6 +131,7 @@ def get_rate_features(
         new_cols.append(f"{att}_submitter_fill_rate")
         new_cols.append(f"{att}_logo_correct_rate")
         new_cols.append(f"{att}_logo_fill_rate")
+
     logger.info(len(data))
     df = pd.concat([data, pd.DataFrame(columns=new_cols)], axis=1)
 
@@ -246,6 +242,6 @@ def feature_engineering(
     return df.merge(
         right=df_rate,
         how="inner",
-        left_index=True,
-        right_index=True,
+        left_on=cols,
+        right_on=cols,
     )
