@@ -28,7 +28,7 @@ def get_features_by_entity(
         s_correct_dict = s_correct.to_dict()
         df_metrics[f"{col.replace('label', 'correct')}_{name}"] = (
             df_metrics[name].map(s_correct_dict).fillna(0)
-        )
+        ).astype("int8")
 
         del s_correct
         del s_correct_dict
@@ -39,7 +39,7 @@ def get_features_by_entity(
         s_total_dict = s_total.to_dict()
         df_metrics[f"{col.replace('label', 'total')}_{name}"] = (
             df_metrics[name].map(s_total_dict).fillna(0)
-        )
+        ).astype("int8")
 
         del s_total
         del s_total_dict
@@ -48,7 +48,9 @@ def get_features_by_entity(
     for col in fill:
         s_filled = data[data[col].isin([0, 1])].groupby(name)[col].count()
         s_filled_dict = s_filled.to_dict()
-        df_metrics[f"{col}_{name}"] = df_metrics[name].map(s_filled).fillna(0)
+        df_metrics[f"{col}_{name}"] = (
+            df_metrics[name].map(s_filled).fillna(0).astype("int8")
+        )
 
         del s_filled
         # del temp3
