@@ -249,7 +249,7 @@ def feature_engineering(
             df[f"{att}_filled_submitter_person_id"]
             / df[f"{att}_total_submitter_person_id"],
             0,
-        ).astype(float)
+        ).astype("float16")
         df = df.drop(
             [
                 f"{att}_filled_submitter_person_id",
