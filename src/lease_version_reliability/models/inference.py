@@ -86,16 +86,15 @@ async def run_inference(download: bool) -> None:
     attributes = settings.ATTRIBUTES
 
     logger.info("Calculating Submitter Results")
-    submitter_df, _ = get_submitter_reliability(df, x_cols, y_cols, model_dict)
+    (submitter_export,) = get_submitter_reliability(df, y_cols, model_dict)
 
     del df
     gc.collect()
 
     logger.info("Calculating Version Results")
-    version_reliability_df = get_version_reliability(
+    version_export = get_version_reliability(
         df_all,
         attributes,
-        x_cols,
         y_cols,
         model_dict,
     )
@@ -103,27 +102,27 @@ async def run_inference(download: bool) -> None:
     del df_all
     gc.collect()
 
-    submitter_df = modify_submitter_df(submitter_df)
-    version_reliability_df = modify_version_df(version_reliability_df)
+    submitter_export = modify_submitter_df(submitter_export)
+    version_export = modify_version_df(version_export)
 
     logger.info("Exporting <SUBMITTER RELIABILITY> into Snowflake")
     write_into_snowflake(
-        submitter_df,
+        submitter_export,
         "LEASE_VERSION_RELIABILITY",
         "submitter",
     )
 
     logger.info("Exporting <VERSION RELIABILITY> into Snowflake")
-    logger.info(f"Total len of {len(version_reliability_df)}")
+    logger.info(f"Total len of {len(version_export)}")
 
     write_into_snowflake(
-        version_reliability_df,
+        version_export,
         "LEASE_VERSION_RELIABILITY",
         "version",
     )
 
-    logger.info(submitter_df.head())
-    logger.info(version_reliability_df.head())
+    logger.info(submitter_export.head())
+    logger.info(version_export.head())
 
     logger.info("Disconnecting to MySQL")
     await mysql.disconnect()

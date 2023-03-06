@@ -1,35 +1,39 @@
 from typing import Any
 
 import pandas as pd
+import structlog
+
+logger = structlog.get_logger()
 
 
 def get_submitter_reliability(
     df: pd.DataFrame,
-    X_cols: Any,
     y_cols: Any,
     model_dict: dict[Any, Any],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Calculate reliability score for every submitter
     """
-    submitter_info = df[["submitter_person_id"] + X_cols].drop_duplicates()
-    for col in submitter_info:
+    # submitter_info = df[["submitter_person_id"] + X_cols].drop_duplicates()
+    for col in df:
         if ("logo" in col) and ("submitter" not in col):
-            submitter_info[col] = 0
-    submitter_info[
-        "n_support"
-    ] = submitter_info.submitter_person_id.value_counts()[
-        submitter_info["submitter_person_id"]
+            df[col] = 0
+    df["n_support"] = df.submitter_person_id.value_counts()[
+        df["submitter_person_id"]
     ].to_list()
-    submitter_info = submitter_info.drop_duplicates(
+
+    df = df.drop_duplicates(
         subset="submitter_person_id",
     )
-    anal_df = submitter_info[["submitter_person_id", "n_support"]]
+    anal_df = df[["submitter_person_id", "n_support"]]
     reliability_cols = []
     for col in y_cols:
         clf = model_dict[col]
-        feature_names = clf.feature_names_in_
-        prob = clf.predict_proba(submitter_info[feature_names])[:, 1]
+        X = df[clf.feature_names_in_]
+        for x in X:
+            logger.info(x)
+
+        prob = clf.predict_proba(X)[:, 1]
         reliability_col = col.replace("label", "reliability")
         anal_df[reliability_col] = prob
         reliability_cols.append(reliability_col)
@@ -51,13 +55,12 @@ def get_submitter_reliability(
         ascending=False,
     ).reset_index(drop=True)
 
-    return anal_df, submitter_info
+    return anal_df
 
 
 def get_version_reliability(
     data: pd.DataFrame,
     attributes: Any,
-    x_cols: Any,
     y_cols: Any,
     model_dict: dict[Any, Any],
 ) -> pd.DataFrame:
@@ -72,8 +75,8 @@ def get_version_reliability(
         model_name = y_cols[i]
         clf = model_dict[model_name]
         val_df[f"{attributes[i]}_version"] = data[f"{attributes[i]}_version"]
-        feature_names = clf.feature_names_in_
-        probs = clf.predict_proba(data[feature_names])[:, 1]
+        X = data[clf.feature_names_in_]
+        probs = clf.predict_proba(X)[:, 1]
         val_df[f"{attributes[i]}_prob"] = probs
 
     val_df = val_df.sort_values(by="comp_data_id_master")
