@@ -48,7 +48,11 @@ async def get_logo_df(data: pd.DataFrame) -> pd.DataFrame:
         right_on="submission_id",
     )
 
-    return data.drop(["submission_id", "specialk_id"], axis=1)
+    df = data.drop(["submission_id", "specialk_id"], axis=1)
+    del data
+    gc.collect()
+
+    return df
 
 
 async def get_version_max_id(db: CompstakServicesMySQL) -> Any:
@@ -153,10 +157,10 @@ async def get_all_data() -> pd.DataFrame:
 
         counter += 1
     df = await get_logo_df(df)
-    for col in df:
-        print(col)
-        if col in settings.DATA_TYPE_DICT.keys():
-            df[col] = df[col].astype(settings.DATA_TYPE_DICT[col])
+    # for col in df:
+    #     print(col)
+    #     if col in settings.DATA_TYPE_DICT.keys():
+    #         df[col] = df[col].astype(settings.DATA_TYPE_DICT[col])
 
     return df
 
