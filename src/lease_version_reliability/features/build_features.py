@@ -76,22 +76,13 @@ def combine_features(
 
     """
 
-    logger.info("Merge Start")
     for col in agg_data:
         if col != name:
             temp_dict = dict(zip(agg_data[name], agg_data[col]))
             data[col] = data[name].map(temp_dict).fillna(0)
     del temp_dict
     gc.collect()
-    logger.info("Merge End")
 
-    # df = data.merge(
-    #     agg_data,
-    #     how=how,
-    #     left_on=left_on,
-    #     right_on=right_on,
-    # )
-    #
     cols_added = []
     for c in correct:
         replace_total = c.replace("correct", "total")
