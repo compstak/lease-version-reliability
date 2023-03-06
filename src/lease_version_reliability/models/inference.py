@@ -2,7 +2,6 @@ import gc
 import logging
 
 import pandas as pd
-from sqlalchemy.dialects import registry
 import structlog
 
 from lease_version_reliability.common.file_io import download_models, read_model
@@ -111,8 +110,6 @@ async def run_inference(download: bool) -> None:
 
     submitter_export = modify_submitter_df(submitter_export)
     version_export = modify_version_df(version_export)
-
-    registry.register("snowflake", "snowflake.sqlalchemy", "dialect")
 
     logger.info("Exporting <SUBMITTER RELIABILITY> into Snowflake")
     write_into_snowflake(
