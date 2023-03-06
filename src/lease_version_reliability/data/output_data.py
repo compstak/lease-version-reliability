@@ -27,12 +27,13 @@ def get_submitter_reliability(
     )
     anal_df = df[["submitter_person_id", "n_support"]]
     reliability_cols = []
+    for x in df:
+        logger.info(x)
+
     for col in y_cols:
         clf = model_dict[col]
-        X = df[clf.feature_names_in_]
-        for x in X:
-            logger.info(x)
 
+        X = df[clf.feature_names_in_]
         prob = clf.predict_proba(X)[:, 1]
         reliability_col = col.replace("label", "reliability")
         anal_df[reliability_col] = prob
