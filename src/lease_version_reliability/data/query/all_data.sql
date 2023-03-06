@@ -1,8 +1,6 @@
 SELECT
 cv.id,
 cv.submitter_person_id,
-cv.comp_data_id AS comp_data_id_version,
-cm.comp_data_id AS comp_data_id_master,
 tv.name AS tenant_name_version,
 cdcfv.space_type_id AS space_type_id_version,
 cdv.transaction_size AS transaction_size_version,

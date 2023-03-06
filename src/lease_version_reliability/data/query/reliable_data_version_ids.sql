@@ -20,4 +20,4 @@ WHERE cm.id IN
     comp_master_id
     HAVING
     COUNT(1) >= 3
-)
+);
