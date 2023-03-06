@@ -240,7 +240,7 @@ def feature_engineering(
             df[f"{att}_correct_submitter_person_id"]
             / df[f"{att}_filled_submitter_person_id"],
             0,
-        ).astype(float)
+        ).astype("float16")
 
         df = df.drop([f"{att}_correct_submitter_person_id"], axis=1)
 
@@ -262,7 +262,7 @@ def feature_engineering(
             df[f"{att}_filled_logo"] > 0,
             df[f"{att}_correct_logo"] / df[f"{att}_filled_logo"],
             0,
-        ).astype(float)
+        ).astype("float16")
 
         df = df.drop([f"{att}_correct_logo"], axis=1)
 
@@ -270,7 +270,7 @@ def feature_engineering(
             df[f"{att}_total_logo"] > 0,
             df[f"{att}_filled_logo"] / df[f"{att}_total_logo"],
             0,
-        ).astype(float)
+        ).astype("float16")
         df = df.drop([f"{att}_filled_logo", f"{att}_total_logo"], axis=1)
         return df
     # df_rate = get_rate_features(
