@@ -18,10 +18,10 @@ attributes = [
 
 data_type_dict = {
     "id": "int32",
-    "submitter_person_id": "int32",
-    "comp_data_id_version": "int32",
-    "comp_data_id_master": "int32",
-    "tenant_name_version": "string[pyarrow]",
+    "submitter_person_id": "int",
+    "comp_data_id_version": "int",
+    "comp_data_id_master": "int",
+    "tenant_name_version": "string",
     "space_type_id_version": "float64",
     "transaction_size_version": "float64",
     "starting_rent_version": "float64",
@@ -35,7 +35,7 @@ data_type_dict = {
     "rent_bumps_percent_bumps_version": "float64",
     "rent_bumps_dollar_bumps_version": "float64",
     "lease_type_id_version": "float64",
-    "tenant_name_master": "string[pyarrow]",
+    "tenant_name_master": "string",
     "space_type_id_master": "float64",
     "transaction_size_master": "float64",
     "starting_rent_master": "float64",
@@ -49,5 +49,5 @@ data_type_dict = {
     "rent_bumps_percent_bumps_master": "float64",
     "rent_bumps_dollar_bumps_master": "float64",
     "lease_type_id_master": "float64",
-    "specialk_id": "string[pyarrow]",
+    "specialk_id": "string",
 }
