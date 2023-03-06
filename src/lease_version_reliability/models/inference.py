@@ -88,7 +88,7 @@ async def run_inference(download: bool) -> None:
     attributes = settings.ATTRIBUTES
 
     logger.info("Calculating Submitter Results")
-    (submitter_export,) = get_submitter_reliability(
+    submitter_export = get_submitter_reliability(
         df_reliable,
         y_cols,
         model_dict,
