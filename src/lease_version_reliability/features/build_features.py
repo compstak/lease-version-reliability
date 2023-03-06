@@ -53,7 +53,6 @@ def get_features_by_entity(
         )
 
         del s_filled
-        # del temp3
         del s_filled_dict
         gc.collect()
 
@@ -69,11 +68,8 @@ def combine_features(
     data: pd.DataFrame,
     agg_data: pd.DataFrame,
     name: str,
-    how: str,
     correct: list[Any],
     filled: list[Any],
-    left_on: str,
-    right_on: str,
 ) -> pd.DataFrame:
     """
     Function to merge data with features by name (submitter or brokerage logo)
@@ -118,55 +114,6 @@ def combine_features(
     return data
 
 
-def get_rate_features(
-    data: pd.DataFrame,
-    attributes: dict[Any, Any],
-) -> pd.DataFrame:
-    """
-    Function to take count features (correct submissions, total submissions,
-    and filled submissions) and convert them into a rate.
-    i.e. Fill rate = number submissions filled / total number of submissions
-    """
-    new_cols = []
-    for att in attributes:
-        new_cols.append(f"{att}_submitter_correct_rate")
-        new_cols.append(f"{att}_submitter_fill_rate")
-        new_cols.append(f"{att}_logo_correct_rate")
-        new_cols.append(f"{att}_logo_fill_rate")
-
-    logger.info(len(data))
-    df = pd.concat([data, pd.DataFrame(columns=new_cols)], axis=1)
-
-    for att in attributes:
-        logger.info(f"{att} rates")
-        df[f"{att}_submitter_correct_rate"] = np.where(
-            data[f"{att}_filled_submitter_person_id"] > 0,
-            data[f"{att}_correct_submitter_person_id"]
-            / data[f"{att}_filled_submitter_person_id"],
-            0,
-        ).astype(float)
-        df[f"{att}_submitter_fill_rate"] = np.where(
-            data[f"{att}_total_submitter_person_id"] > 0,
-            data[f"{att}_filled_submitter_person_id"]
-            / data[f"{att}_total_submitter_person_id"],
-            0,
-        ).astype(float)
-
-        df[f"{att}_logo_correct_rate"] = np.where(
-            data[f"{att}_filled_logo"] > 0,
-            data[f"{att}_correct_logo"] / data[f"{att}_filled_logo"],
-            0,
-        ).astype(float)
-
-        df[f"{att}_logo_fill_rate"] = np.where(
-            data[f"{att}_total_logo"] > 0,
-            data[f"{att}_filled_logo"] / data[f"{att}_total_logo"],
-            0,
-        ).astype(float)
-
-    return df
-
-
 def feature_engineering(
     data: pd.DataFrame,
     col_names_label: Any,
@@ -197,11 +144,8 @@ def feature_engineering(
         data,
         df_submitter_features,
         "submitter_person_id",
-        "inner",
         col_names_correct,
         col_names_filled,
-        "submitter_person_id",
-        "submitter_person_id",
     )
     del data
     del df_submitter_features
@@ -212,29 +156,13 @@ def feature_engineering(
         df,
         df_logo_features,
         "logo",
-        "left",
         col_names_correct,
         col_names_filled,
-        "logo",
-        "logo",
     )
     logger.info("Done combining brokerage features")
 
     del df_logo_features
     gc.collect()
-
-    logger.info(df.dtypes)
-
-    cols = []
-    for att in attributes:
-        cols.append(f"{att}_submitter_correct_rate")
-        cols.append(f"{att}_submitter_fill_rate")
-        cols.append(f"{att}_logo_correct_rate")
-        cols.append(f"{att}_logo_fill_rate")
-
-    # df = pd.concat([df, pd.DataFrame(columns=cols)])
-    for col in df:
-        logger.info(df[col].memory_usage())
 
     logger.info("Getting Rate Features")
     for att in attributes:
@@ -274,16 +202,3 @@ def feature_engineering(
         del df[f"{att}_total_logo"]
 
         return df
-    # df_rate = get_rate_features(
-    #     df.groupby(cols)["submitter_person_id"]
-    #     .reset_index()
-    #     .drop("submitter_person_id", axis=1),
-    #     attributes,
-    # )
-    logger.info("Finished getting rate features")
-    # return df.merge(
-    #     right=df_rate,
-    #     how="inner",
-    #     left_on=cols,
-    #     right_on=cols,
-    # )

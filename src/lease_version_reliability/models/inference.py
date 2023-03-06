@@ -52,20 +52,8 @@ async def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
         attributes,
     )
 
-    # logger.info("Data Labels - Reliable Data")
-    # data = get_labels(reliable_data, attributes)
-
     logger.info("Data Labels - All Data")
     all_data = get_labels(all_data, attributes)
-
-    logger.info("Feature Engineering - Reliable Data")
-    # df = feature_engineering(
-    #     data,
-    #     col_names_label,
-    #     col_names_filled,
-    #     col_names_correct,
-    #     attributes,
-    # )
 
     logger.info("Feature Engineering - All Data")
     df_all = feature_engineering(

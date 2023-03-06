@@ -28,7 +28,8 @@ def get_submitter_reliability(
     reliability_cols = []
     for col in y_cols:
         clf = model_dict[col]
-        prob = clf.predict_proba(submitter_info[X_cols])[:, 1]
+        feature_names = clf.feature_names_in_
+        prob = clf.predict_proba(submitter_info[feature_names])[:, 1]
         reliability_col = col.replace("label", "reliability")
         anal_df[reliability_col] = prob
         reliability_cols.append(reliability_col)
@@ -67,12 +68,12 @@ def get_version_reliability(
     val_df["comp_data_id_version"] = data["comp_data_id_version"]
     val_df["comp_data_id_master"] = data["comp_data_id_master"]
 
-    x_temp = data[x_cols]
     for i in range(0, len(attributes)):
         model_name = y_cols[i]
         clf = model_dict[model_name]
         val_df[f"{attributes[i]}_version"] = data[f"{attributes[i]}_version"]
-        probs = clf.predict_proba(x_temp)[:, 1]
+        feature_names = clf.feature_names_in_
+        probs = clf.predict_proba(data[feature_names])[:, 1]
         val_df[f"{attributes[i]}_prob"] = probs
 
     val_df = val_df.sort_values(by="comp_data_id_master")
