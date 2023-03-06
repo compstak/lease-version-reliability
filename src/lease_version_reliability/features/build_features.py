@@ -223,15 +223,12 @@ def feature_engineering(
 
     cols = []
     for att in attributes:
-        for col in df.columns:
-            if (
-                col.startswith(f"{att}_filled")
-                or col.startswith(f"{att}_total")
-                or col.startswith(f"{att}_correct")
-            ):
-                cols.append(col)
+        cols.append(f"{att}_submitter_correct_rate")
+        cols.append(f"{att}_submitter_fill_rate")
+        cols.append(f"{att}_logo_correct_rate")
+        cols.append(f"{att}_logo_fill_rate")
 
-    logger.info(df.memory_usage())
+    df = pd.concat([df, pd.DataFrame(columns=cols)])
 
     logger.info("Getting Rate Features")
     for att in attributes:
