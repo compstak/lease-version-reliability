@@ -65,6 +65,8 @@ async def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     )
 
     df_reliable = df_all[df_all.id.isin(reliable_version_ids)]
+    logger.info(df_reliable.columns.tolist())
+    logger.info(df_all.columns.tolist())
 
     return df_reliable, df_all
 
@@ -80,15 +82,19 @@ async def run_inference(download: bool) -> None:
         download_models()
     model_dict = read_model(settings.TRAIN_CONFIG.MODEL_FILENAME)
 
-    df, df_all = await load_data()
-    x_cols, y_cols = get_split_columns(df.columns)
+    df_reliable, df_all = await load_data()
+    x_cols, y_cols = get_split_columns(df_reliable.columns)
 
     attributes = settings.ATTRIBUTES
 
     logger.info("Calculating Submitter Results")
-    (submitter_export,) = get_submitter_reliability(df, y_cols, model_dict)
+    (submitter_export,) = get_submitter_reliability(
+        df_reliable,
+        y_cols,
+        model_dict,
+    )
 
-    del df
+    del df_reliable
     gc.collect()
 
     logger.info("Calculating Version Results")
