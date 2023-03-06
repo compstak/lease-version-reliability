@@ -75,7 +75,6 @@ def get_version_reliability(
     for i in range(0, len(attributes)):
         model_name = y_cols[i]
         clf = model_dict[model_name]
-        val_df[f"{attributes[i]}_version"] = data[f"{attributes[i]}_version"]
         X = data[clf.feature_names_in_]
         probs = clf.predict_proba(X)[:, 1]
         val_df[f"{attributes[i]}_prob"] = probs
