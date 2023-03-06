@@ -221,6 +221,8 @@ def feature_engineering(
     del df_logo_features
     gc.collect()
 
+    logger.info(df.dtypes)
+
     cols = []
     for att in attributes:
         cols.append(f"{att}_submitter_correct_rate")
