@@ -2,6 +2,7 @@ import gc
 import logging
 
 import pandas as pd
+from sqlalchemy.dialects import registry
 import structlog
 
 from lease_version_reliability.common.file_io import download_models, read_model
@@ -83,7 +84,7 @@ async def run_inference(download: bool) -> None:
     model_dict = read_model(settings.TRAIN_CONFIG.MODEL_FILENAME)
 
     df_reliable, df_all = await load_data()
-    x_cols, y_cols = get_split_columns(df_reliable.columns)
+    _, y_cols = get_split_columns(df_reliable.columns)
 
     attributes = settings.ATTRIBUTES
 
@@ -110,6 +111,8 @@ async def run_inference(download: bool) -> None:
 
     submitter_export = modify_submitter_df(submitter_export)
     version_export = modify_version_df(version_export)
+
+    registry.register("snowflake", "snowflake.sqlalchemy", "dialect")
 
     logger.info("Exporting <SUBMITTER RELIABILITY> into Snowflake")
     write_into_snowflake(
