@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     SNOWFLAKE_ROLE = ""
     SNOWFLAKE_ACCOUNT = ""
     SNOWFLAKE_REGION = ""
-    SNOWFLAKE_DB = "g"
+    SNOWFLAKE_DB = ""
 
     AWS_ROLE_ARN: Optional[str] = None
     AWS_WEB_IDENTITY_TOKEN_FILE: Optional[str] = None
