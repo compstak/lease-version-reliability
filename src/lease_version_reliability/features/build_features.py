@@ -201,4 +201,4 @@ def feature_engineering(
         del df[f"{att}_filled_logo"]
         del df[f"{att}_total_logo"]
 
-        return df
+    return df
