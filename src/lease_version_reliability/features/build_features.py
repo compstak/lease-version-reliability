@@ -233,6 +233,8 @@ def feature_engineering(
         cols.append(f"{att}_logo_fill_rate")
 
     # df = pd.concat([df, pd.DataFrame(columns=cols)])
+    for col in df:
+        logger.info(df[col].memory_usage())
 
     logger.info("Getting Rate Features")
     for att in attributes:
