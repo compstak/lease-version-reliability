@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 from snowflake.connector.pandas_tools import pd_writer
 from sqlalchemy import create_engine
-from sqlalchemy.dialects import registry
 import structlog
 
 from lease_version_reliability.config.settings import settings
@@ -17,7 +16,6 @@ from lease_version_reliability.data.database import cs_mysql_instance as mysql
 from lease_version_reliability.data.database import get_snowflake_connection
 
 logger = structlog.get_logger()
-registry.register("snowflake", "snowflake.sqlalchemy", "dialect")
 
 
 def read_file(package: str, filename: str) -> str:
@@ -159,10 +157,6 @@ async def get_all_data() -> pd.DataFrame:
 
         counter += 1
     df = await get_logo_df(df)
-    # for col in df:
-    #     print(col)
-    #     if col in settings.DATA_TYPE_DICT.keys():
-    #         df[col] = df[col].astype(settings.DATA_TYPE_DICT[col])
 
     return df
 
