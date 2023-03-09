@@ -3,6 +3,8 @@ from typing import Any
 import pandas as pd
 import structlog
 
+from lease_version_reliability.config.settings import settings
+
 logger = structlog.get_logger()
 
 
@@ -14,7 +16,6 @@ def get_submitter_reliability(
     """
     Calculate reliability score for every submitter
     """
-    # submitter_info = df[["submitter_person_id"] + X_cols].drop_duplicates()
     for col in df:
         if ("logo" in col) and ("submitter" not in col):
             df[col] = 0
@@ -40,14 +41,7 @@ def get_submitter_reliability(
         reliability_cols.append(reliability_col)
 
     cols_to_average = [
-        "tenant_name_reliability",
-        "space_type_id_reliability",
-        "transaction_size_reliability",
-        "starting_rent_reliability",
-        "execution_date_reliability",
-        "commencement_date_reliability",
-        "lease_term_reliability",
-        "expiration_date_reliability",
+        f"{x}_reliability" for x in settings.GENERAL_RELIABILITY_ATTRIBUTES
     ]
 
     anal_df["general_reliability"] = anal_df[cols_to_average].mean(axis=1)
@@ -78,6 +72,12 @@ def get_version_reliability(
         X = data[clf.feature_names_in_]
         probs = clf.predict_proba(X)[:, 1]
         val_df[f"{attributes[i]}_prob"] = probs
+
+    cols_to_average = [
+        f"{x}_prob" for x in settings.GENERAL_RELIABILITY_ATTRIBUTES
+    ]
+
+    val_df["general_reliability"] = val_df[cols_to_average].mean(axis=1)
 
     val_df = val_df.sort_values(by="comp_data_id_master")
 

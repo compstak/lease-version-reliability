@@ -3,7 +3,10 @@ from typing import Optional
 
 from pydantic import BaseModel, BaseSettings
 
-from lease_version_reliability.config.attributes import attributes
+from lease_version_reliability.config.attributes import (
+    attributes,
+    general_reliability_attributes,
+)
 
 
 class BatchConfig(BaseModel):
@@ -25,6 +28,7 @@ class Settings(BaseSettings):
     TRAIN_CONFIG: TrainConfig = TrainConfig()
 
     ATTRIBUTES: list[str] = attributes
+    GENERAL_RELIABILITY_ATTRIBUTES = general_reliability_attributes
 
     MODEL_DIR: str = "models"
     SQL_QUERY: str = "lease_version_reliability.data.query"

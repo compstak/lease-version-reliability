@@ -392,6 +392,9 @@ def modify_version_df(df: pd.DataFrame):
     col.insert(0, "comp_data_id_version")
     col_reliability.insert(0, "comp_data_id_version")
 
+    col.insert(len(col), "general_reliability")
+    col_reliability.insert(len(col), "general_reliability")
+
     df = df[col_reliability]
     df = df.set_axis(col, axis=1)
 
