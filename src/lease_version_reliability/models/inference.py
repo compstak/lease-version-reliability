@@ -34,11 +34,6 @@ async def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     Get reliable data (with more than 3 versions) and all version data
     Retrun datasets after performing feature engineering
     """
-    # training data (masters with >3 versions within it)
-    # logger.info("Reading Reliable Data from MySQL")
-    # reliable_data = await get_reliable_data()
-
-    # all version data needed to export a reliability score
 
     logger.info("Get Reliable Version Ids")
     reliable_version_ids = await get_reliable_data_version_ids()

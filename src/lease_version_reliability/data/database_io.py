@@ -323,6 +323,7 @@ def get_labels(data: pd.DataFrame, attributes: list[str]) -> pd.DataFrame:
     df = data.drop(drop_columns, axis=1)
     del data
     gc.collect()
+
     return df
 
 
@@ -337,6 +338,7 @@ def get_column_names(attributes: Any) -> Any:
         correct.append(f"{att}_correct")
         filled.append(f"{att}_filled")
         label.append(f"{att}_label")
+
     return correct, filled, label
 
 
@@ -398,8 +400,9 @@ def modify_version_df(df: pd.DataFrame):
     df = df[col_reliability]
     df = df.set_axis(col, axis=1)
 
-    df["date_created"] = pd.Timestamp.now()
+    df.insert(len(df.columns) - 1, "date_created", pd.Timestamp.now())
     df["date_created"] = df["date_created"].dt.strftime("%Y-%m-%d %X")
+
     df.columns = map(lambda x: str(x).upper(), df.columns)
 
     return df
