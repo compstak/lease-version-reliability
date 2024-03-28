@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   aws-ecr: circleci/aws-ecr@7.0.0
+  jira: circleci/jira@2.1.0
 
 _defaults: &defaults
   machine:
@@ -15,11 +16,15 @@ workflows:
     jobs:
       - pre-commit
       - integration:
-          context: aws-deploy
+          context:
+            - aws-deploy
+            - jira-webhook
           requires:
             - pre-commit
       - aws-ecr/build-and-push-image:
-          context: aws-deploy
+          context:
+            - aws-deploy
+            - jira-webhook
           dockerfile: Dockerfile
           repo: snake-repo
           tag: build-$CIRCLE_BUILD_NUM
@@ -82,3 +87,6 @@ jobs:
       - run:
           name: Stop Docker Compose environment
           command: docker-compose down -v
+      - jira/notify:
+          pipeline_id: << pipeline.id >>
+          pipeline_number: << pipeline.number >>
